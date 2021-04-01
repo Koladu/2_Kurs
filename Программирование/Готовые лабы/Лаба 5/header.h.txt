@@ -1,0 +1,42 @@
+#pragma once
+#include <stdio.h>
+#include <time.h>
+#include <iostream>
+
+#define N 10		
+#define NN 79
+#define vk printf_s("\n")
+
+struct student
+{
+	char *nam;		//имя
+	int kurs;		//курс
+	double step;	//размер стипендии
+	int ocenka[N];	//получаемые оценки
+	int pos[N];		//посещение
+	float sr_oc;	//средняя оценка
+};
+//Нахождение минимальной средней оценки
+void F_min_sr(student vmc[N]);
+//Студенты чья средняя оценка меньше 3.5
+void F_men_3_5(student vmc[N]);
+//Студенты которые посещали 5-ое занятие
+void F_pos_5(student vmc[N]);
+//Студенты которые получили 5 на 8-м занятии
+void F_pol_5(student vmc[N]);
+//На 4 занятии получили 3 или 4
+void F_3_and_4(student vmc[N]);
+//Прогуляли последнее занятие
+void F_prog_posl(student vmc[N]);
+//Прогуляли менее 5 занятий
+void F_men_5(student vmc[N]);
+//Прогуляли больше всех занятий
+void F_bol_vseh(student vmc[N]);
+//Учатся на 3 курсе
+void F_na_3_kurs(student vmc[N]);
+//Сортировка по убыванию средних оценок
+void F_sort_sr(student vmc[N]);
+//Сортировка по возрастанию первых букв имени
+void F_imena(student vmc[N]);
+//Сортировка по возрастанию курсов
+void F_vozr_kurs(student vmc[N]);

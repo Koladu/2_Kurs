@@ -1,0 +1,260 @@
+#include <Windows.h>
+#include <iostream>
+#include <conio.h>
+#include <string>
+
+enum ConsoleColor
+{
+	Black = 0,
+	Blue = 1,
+	Green = 2,
+	Cyan = 3,
+	Red = 4,
+	Magenta = 5,
+	Brown = 6,
+	LightGray = 7,
+	DarkGray = 8,
+	LightBlue = 9,
+	LightGreen = 10,
+	LightCyan = 11,
+	LightRed = 12,
+	LightMagenta = 13,
+	Yellow = 14,
+	White = 15
+};
+
+void createWindowAndDraw();
+
+int main()
+{
+	createWindowAndDraw();
+}
+
+void createWindowAndDraw()
+{
+	setlocale(LC_ALL, "rus");
+
+	int color = 4;
+	int KolX = 160;
+	int KolY = 100;
+	std::string brath = " ";
+
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE hin = GetStdHandle(STD_INPUT_HANDLE);
+
+	INPUT_RECORD InputRecord;
+	DWORD Events;
+	COORD coord;
+	CONSOLE_CURSOR_INFO cci;
+
+	COORD White = { 0, 0 };
+	COORD Blue = { 1, 0 };
+	COORD Green = { 2, 0 };
+	COORD Cyan = { 3, 0 };
+	COORD Red = { 4, 0 };
+	COORD Magenta = { 5, 0 };
+	COORD Brown = { 6, 0 };
+	COORD LightGray = { 7, 0 };
+	COORD DarkGray = { 8, 0 };
+	COORD LightBlue = { 9, 0 };
+	COORD LightGreen = { 10, 0 };
+	COORD LightCyan = { 11, 0 };
+	COORD LightRed = { 12, 0 };
+	COORD LightMagenta = { 13, 0 };
+	COORD Yellow = { 14, 0 };
+	COORD Black = { 15, 0 };
+
+	FreeConsole();
+	AttachConsole(ATTACH_PARENT_PROCESS);
+
+	SetConsoleTitle(L"Paint 2.0");
+
+	SMALL_RECT windows_size = { 0,0,KolX, KolY };
+	SetConsoleWindowInfo(out, TRUE, &windows_size);
+
+	COORD buffer_size = { KolX + 1, KolY + 1 };
+	SetConsoleScreenBufferSize(out, buffer_size);
+
+	system("color F0");
+
+	SetConsoleCursorInfo(out, &cci);
+	SetConsoleMode(hin, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+
+
+	while (1)
+	{
+
+		SetConsoleTextAttribute(out, (WORD)((15 << 4) | 0));
+		SetConsoleCursorPosition(out, White);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((1 << 4) | 0));
+		SetConsoleCursorPosition(out, Blue);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((2 << 4) | 0));
+		SetConsoleCursorPosition(out, Green);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((3 << 4) | 0));
+		SetConsoleCursorPosition(out, Cyan);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((4 << 4) | 0));
+		SetConsoleCursorPosition(out, Red);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((5 << 4) | 0));
+		SetConsoleCursorPosition(out, Magenta);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((6 << 4) | 0));
+		SetConsoleCursorPosition(out, Brown);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((7 << 4) | 0));
+		SetConsoleCursorPosition(out, LightGray);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((8 << 4) | 0));
+		SetConsoleCursorPosition(out, DarkGray);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((9 << 4) | 0));
+		SetConsoleCursorPosition(out, LightBlue);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((10 << 4) | 0));
+		SetConsoleCursorPosition(out, LightGreen);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((11 << 4) | 0));
+		SetConsoleCursorPosition(out, LightCyan);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((12 << 4) | 0));
+		SetConsoleCursorPosition(out, LightRed);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((13 << 4) | 0));
+		SetConsoleCursorPosition(out, LightMagenta);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((14 << 4) | 0));
+		SetConsoleCursorPosition(out, Yellow);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((0 << 4) | 0));
+		SetConsoleCursorPosition(out, Black);
+		std::cout << " " << std::endl;
+
+		SetConsoleTextAttribute(out, (WORD)((15 << 4) | 0));
+
+		/*if (_kbhit())//проверка нажатия клавиши
+		{
+			int code = _getch(); //получаем код нажатой клавиши
+			switch (code)
+			{
+			case 'q': brath = "1";
+				break;
+			case 'w': brath = "2";
+				break;
+			case 'e': brath = "3";
+				break;
+			case 'r': brath = "4";
+				break;
+			case 't': brath = "5";
+				break;
+			}
+		}*/
+
+		ReadConsoleInput(hin, &InputRecord, 1, &Events);
+
+		if (InputRecord.EventType == MOUSE_EVENT)
+		{
+			if (InputRecord.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
+			{
+				if (0 != InputRecord.Event.MouseEvent.dwMousePosition.Y)
+				{
+					coord.X = InputRecord.Event.MouseEvent.dwMousePosition.X;
+					coord.Y = InputRecord.Event.MouseEvent.dwMousePosition.Y;
+					SetConsoleCursorPosition(out, coord);
+					SetConsoleTextAttribute(out, (WORD)((color << 4) | 0));
+
+					std::cout << brath;
+				}
+
+			}
+			if (InputRecord.Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
+			{
+				if (Black.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Black.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 0;
+				}
+				else if (White.X == InputRecord.Event.MouseEvent.dwMousePosition.X & White.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 15;
+				}
+				else if (Blue.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Blue.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 1;
+				}
+				else if (Green.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Green.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 2;
+				}
+				else if (Cyan.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Cyan.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 3;
+				}
+				else if (Red.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Red.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 4;
+				}
+				else if (Magenta.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Magenta.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 5;
+				}
+				else if (Brown.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Brown.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 6;
+				}
+				else if (LightGray.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightGray.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 7;
+				}
+				else if (DarkGray.X == InputRecord.Event.MouseEvent.dwMousePosition.X & DarkGray.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 8;
+				}
+				else if (LightBlue.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightBlue.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 9;
+				}
+				else if (LightGreen.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightGreen.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 10;
+				}
+				else if (LightCyan.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightCyan.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 11;
+				}
+				else if (LightRed.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightRed.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 12;
+				}
+				else if (LightMagenta.X == InputRecord.Event.MouseEvent.dwMousePosition.X & LightMagenta.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 13;
+				}
+				else if (Yellow.X == InputRecord.Event.MouseEvent.dwMousePosition.X & Yellow.Y == InputRecord.Event.MouseEvent.dwMousePosition.Y) {
+					color = 14;
+				}
+			}
+		}
+
+		if (InputRecord.EventType == KEY_EVENT)
+		{
+			if (InputRecord.Event.KeyEvent.bKeyDown)//нажатие клавиши клавиатуры
+			{
+				int code = _getch(); //получаем код нажатой клавиши
+				switch (code)
+				{
+				case 27: exit(0);
+					break;
+
+				}
+			}
+		}
+	}
+
+	char ch;
+	ch = getchar();
+
+	FreeConsole();
+}

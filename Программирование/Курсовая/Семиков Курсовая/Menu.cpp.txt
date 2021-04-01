@@ -1,0 +1,946 @@
+#include "Tee.h"
+
+string FileName = "tee.db";  // Путь к файлу и/или имя файла
+
+HDC hdc = GetDC(GetConsoleWindow());
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //получаем дескриптор 
+
+//Вывод меню, выбор действия и перенаправление на функции в зависимости от выбора
+void menu(int n, struct Tea* tee)
+{	 /*
+	 Данная функция управляется номером команды	для использования нужных команд
+	 Входной параметр - Массив структуры данных и команда для удаления элемента;
+	 Выходной параметр - Отсутствует.
+	 */
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 2);	  //Зеленый
+	cout << "\t   Меню\n";
+	cout << "1. Вывод базы данных на экран\n";
+	cout << "2. Добавление чая\n";
+	cout << "3. Поиск и удаление\n";
+	cout << "4. Сортировка\n";
+	cout << "5. Информация о создателе\n\n";
+	SetConsoleTextAttribute(hStdOut, 8);	// Серый
+	cout << "0. Выход\n";
+
+	int comanda;
+	cout << "Выберите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		menu(n, tee);
+	}
+
+	switch (comanda)
+	{
+	case 0: exit(0);  //выход
+	case 1: Draw(n, tee); break;   //1 - вывод базы данных на экран(menu)
+	case 2: AddTea(n, tee); break;  //2 - добавление чая(menu)
+	case 3: SearchTea(n, tee); break;  //3 - поиск и удаление чая(menu) 
+	case 4: SortTea(n, tee); break;  //4 - сортировка(menu)
+	case 5: information(n, tee); break;  //5 - информация о создателе
+	default: menu(n, tee);
+	}
+}
+
+//1 - вывод базы данных на экран(menu)  
+void Draw(int n, struct Tea* tee)
+{
+	/*
+	Данная функция выводит БД в консоли
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 2);
+
+	gotoxy(1, 0);
+	cout << "№ |";
+	gotoxy(4, 0);
+	cout << "Тип чая   |";
+	gotoxy(15, 0);
+	cout << "Форма упаковки |";
+	gotoxy(31, 0);
+	cout << "Производитель  |";
+	gotoxy(47, 0);
+	cout << "Цена за шт. |";
+	gotoxy(60, 0);
+	cout << "Колличество  ";
+
+	cout << "\n-------------------------------------------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 15);
+	for (int i = 0; i < n; i++)
+	{
+		gotoxy(1, i + 2);
+		cout << i + 1;
+		gotoxy(4, i + 2);
+		cout << tee[i].TypeTea;
+		gotoxy(15, i + 2);
+		cout << tee[i].PackingForm;
+		gotoxy(31, i + 2);
+		cout << tee[i].Manufacturer;
+		gotoxy(47, i + 2);
+		cout << tee[i].PriceForOne;
+		gotoxy(60, i + 2);
+		cout << tee[i].Quantity;
+
+		gotoxy(3, i + 2);
+		cout << "|";
+		gotoxy(14, i + 2);
+		cout << "|";
+		gotoxy(30, i + 2);
+		cout << "|";
+		gotoxy(46, i + 2);
+		cout << "|";
+		gotoxy(59, i + 2);
+		cout << "|";
+		gotoxy(78, i + 2);
+	}
+	SetConsoleTextAttribute(hStdOut, 15);
+	int com;
+	cout << "\n\n Введите номер команды и нажмите ENTER \n(1 - Сортировка; 0 - Выход в меню): ";
+	while (!(cin >> com))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		Draw(n, tee);
+	}
+	switch (com)
+	{
+	case 0: menu(n, tee);	break;
+	case 1: SortTea(n, tee); break;
+	default: Draw(n, tee);
+	}
+}
+
+//Данные для БД  
+void WriteBeginText()
+{
+	/*
+	Данная функция создает файл и записывает строк
+	Входной параметр - Отсутствует;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	fout << "1;Зеленый;Квадрат;Въетнам;10;900;" << endl;
+	fout << "2;Зеленый;Квадрат;Япония;60;120;" << endl;
+	fout << "3;Черный;Прямоугольник;Тайвань;31;190;" << endl;
+	fout << "4;Зеленый;Треугольник;Китай;49;200;" << endl;
+	fout << "5;Черный;Квадрат;Испания;76;150;" << endl;
+	fout << "6;Черный;Треугольник;Япония;92;460;" << endl;
+	fout << "7;Зеленый;Прямоугольник;Британия;52;670;" << endl;
+	fout.close();
+}
+
+//выход в главное меню и проверка на ввод(нет ссылок)  
+void to_menu(int n, struct Tea* tee)
+{
+	/*
+	Данная функция предназначена для выхода в меню
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	SetConsoleTextAttribute(hStdOut, 15);
+	int comanda;
+	cout << "\n\t\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		cout << "\n\t\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, tee);
+}
+
+//выравнивание базы данных(нет ссылок)  
+void gotoxy(int x, int y)
+{
+	/*
+	Данная функция выравнивает БД в консоли
+	Входной параметр - Задающие координаты для выравнивания БД в консоли;
+	Выходной параметр - Отсутствует.
+	*/
+	COORD p = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+}
+
+//Считывание кол-ва строк из файла   
+int number()
+{
+	/*
+	Данная функция считает количество строк из файла
+	Входной параметр - Отсутствует;
+	Выходной параметр - Количество продуктов.
+	*/
+	int count = 0;
+
+	ifstream file;
+	file.open(FileName);
+
+	while (!file.eof())
+	{
+		if (file.get() == '\n')
+			count++;
+	}
+
+	Tea* Pr = new Tea[count];
+	return count;
+}
+
+//Инициализация массивоф данными  
+Tea* Initialization(int n, struct Tea* tee)
+{
+	/*
+	Данная функция инициализирует массив структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	ifstream fin;
+	fin.open(FileName);
+
+	char  N1[3], Quantity1[20], PriceForOne1[20],PackingForm1[20], Manufacturer1[20], TypeTea1[20];
+
+	//------------------------------------------------------------------------------
+
+	for (int j = 0; j < n; j++)
+	{
+		//---------Инициализация масивов символов к нулевому символу--------------------
+		for (int i = 0; i < 3; i++) {
+			N1[i] = '\0';
+		}
+
+		for (int i = 0; i < 20; i++) {
+			PackingForm1[i] = Manufacturer1[i] = TypeTea1[i] = '\0';
+		}
+
+		for (int i = 0; i < 20; i++) {
+			PriceForOne1[i] = Quantity1[i] = '\0';
+		}
+
+
+
+		int count = 0;
+		char ch;
+
+		while ((ch = fin.get()) != ';')
+		{
+			N1[count] = ch; count++;
+		}
+		count = 0;
+
+		while ((ch = fin.get()) != ';')
+		{
+			TypeTea1[count] = ch; count++;
+		}
+		count = 0;
+
+		while ((ch = fin.get()) != ';')
+		{
+			PackingForm1[count] = ch; count++;
+		}
+		count = 0;
+
+		while ((ch = fin.get()) != ';')
+		{
+			Manufacturer1[count] = ch; count++;
+		}
+		count = 0;
+
+		while ((ch = fin.get()) != ';')
+		{
+			PriceForOne1[count] = ch; count++;
+		}
+		count = 0;
+
+		while ((ch = fin.get()) != ';')
+		{
+			Quantity1[count] = ch; count++;
+		}
+		count = 0;
+
+		tee[j].N = atoi(N1);
+		tee[j].TypeTea = TypeTea1;
+		tee[j].PackingForm = PackingForm1;
+		tee[j].Manufacturer = Manufacturer1;
+		tee[j].PriceForOne = atoi(PriceForOne1);
+		tee[j].Quantity = atoi(Quantity1);
+	}
+	fin.close();
+	return NULL;
+}
+
+//2 - добавление чая(menu)   
+Tea* AddTea(int n, struct Tea* tee)
+{
+	/*
+	Данная функция предназначена для добавления нужного количество элементов массива структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	int nAdd;
+	SetConsoleTextAttribute(hStdOut, 2);
+	cout << "Введите количество добавляемого чая: ";
+	while (!(cin >> nAdd))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		cout << endl << "\t\tОШИБКА!\nВведите заново количество добавленных студентов: ";
+	}
+
+	Tea* TeaNew = new Tea[n + nAdd];
+
+	for (int i(0); i < n; i++)
+	{
+		TeaNew[i] = tee[i];
+	}
+	system("cls");
+	delete[] tee;
+	tee = TeaNew;
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		char Type[40];
+		char Form[40];
+		char Manufact[40];
+		char f[48];
+
+		SetConsoleCP(1251); //Перевод в кодировку
+		SetConsoleOutputCP(1251);
+		SetConsoleTextAttribute(hStdOut, 2);
+
+		//=============================
+		cout << endl << "Введите тип " << i + 1 << "-го чая: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(f, 48);
+		cin.getline(Type, 40);
+		tee[i].TypeTea = (string)Type;
+		SetConsoleTextAttribute(hStdOut, 2);
+		//==============================
+		cout << endl << "Введите Форму упаковки " << i + 1 << "-го чая: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(Form, 40);
+		tee[i].PackingForm = (string)Form; 
+		SetConsoleTextAttribute(hStdOut, 2);
+		//==============================
+		cout << endl << "Введите страну производитель " << i + 1 << "-го чая: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(Manufact, 40);
+		tee[i].Manufacturer = (string)Manufact;
+		SetConsoleTextAttribute(hStdOut, 2);
+		//==============================
+		cout << endl << "Введите цену за 1шт. " << i + 1 << "-го чая: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> tee[i].PriceForOne;
+		SetConsoleTextAttribute(hStdOut, 2);
+		//==============================
+		cout << endl << "Введите колличество " << i + 1 << "-го чая";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> tee[i].Quantity;
+		SetConsoleTextAttribute(hStdOut, 2);
+
+
+		system("cls");
+	}
+
+	ofstream fout;
+	fout.open(FileName, ios_base::app);
+
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		fout << i + 1 << ";" << TeaNew[i].TypeTea << ";" << TeaNew[i].PackingForm << ";" << TeaNew[i].Manufacturer;
+		fout << ";" << TeaNew[i].PriceForOne << ";" << TeaNew[i].Quantity << ";\n";
+	}
+
+	fout.close();
+
+	n += nAdd;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t\t | Данные сохранены | \n";
+
+	to_menu(n, tee);
+	return 0;
+}
+
+//3 - поиск и удаление чая(menu)   
+void SearchTea(int n, struct Tea* tee)
+{
+	/*
+	Данная функция предназначена для поиска элемента массива(и при желаний для дальнейшего удаления элемента массива)
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	SetConsoleCP(1251); //Перевод в кодировку
+	SetConsoleOutputCP(1251);
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\tПоиск\n";
+	SetConsoleTextAttribute(hStdOut, 2);
+	cout << "1 - По порядковому номеру\n";
+	cout << "2 - По типу чая \n";
+	cout << "3 - По форме упаковки \n";
+	cout << "4 - По производителю \n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\n0 - Выход в меню\n";
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SearchTea(n, tee);
+	}
+
+	switch (comanda)
+	{
+	case 1:
+	{
+		system("cls");
+		int No, No1;
+		cout << "\n\tВведите № искомого чая (1 - " << n << "): ";
+		while (!(cin >> No1) || No1 > n || No1 < 1)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "Вы ввели неправильно порядковый номера \n";
+			cout << "\n\tВведите заново № искомого чая (1 - " << n << "): ";
+		}
+		No = No1 - 1;
+
+		system("cls");
+		cout << "\t№ ";
+		SetConsoleTextAttribute(hStdOut, 10);
+		cout << No1;
+		SetConsoleTextAttribute(hStdOut, 15);
+		cout << "\n\tТип чая: " << tee[No].TypeTea << "\n\tФорма упаковки: " << tee[No].PackingForm << "\n\tПроизводитель: " << tee[No].Manufacturer;
+		cout << "\n\tЦена за 1 шт.: " << tee[No].PriceForOne << "\n\tКолличество: " << tee[No].Quantity << endl << endl;
+		cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+		int com;
+		cout << "\n\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com) || com > 1 || com < 0)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 0: menu(n, tee); break;
+		case 1: Detete(n, tee, No); break;
+		}
+
+
+	};
+	break;
+
+	case 2:
+	{
+		system("cls");
+		string Tip;
+		int  ComDel = 0;
+		cout << "\n\tВведите тип чая: ";
+		cin >> Tip;
+		int checking = 0;
+
+		system("cls");
+
+		for (int i(0); i < n; i++)
+		{
+			if (Tip == tee[i].TypeTea)
+			{
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tТип чая: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << tee[i].TypeTea;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tФорма коробки: " << tee[i].PackingForm << "\n\tПроизводитель: " << tee[i].Manufacturer;
+				cout << "\n\tЦена за 1 шт.: " << tee[i].PriceForOne << "\n\tКолличество: " << tee[i].Quantity << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Такой чай не найден\n";
+			to_menu(n, tee);
+		}
+		if (checking > 1) 
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, tee);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, tee, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, tee); break;
+			case 1: Detete(n, tee, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 3:
+	{
+		system("cls");
+		string Forma;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите форму упаковки: ";
+		while (!(cin >> Forma))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите форму упаковки: ";
+		}
+		system("cls");
+		for (int i(0); i < n; i++)
+		{
+			if (Forma == tee[i].PackingForm)
+			{
+				cout << "\t№ " << (i + 1) << "\n\tТип чая: " << tee[i].TypeTea << "\n\tФорма упаковки: " << tee[i].PackingForm;
+				cout << "\n\tПроизводитель: " << tee[i].Manufacturer << "\n\tКолличество" << tee[i].Quantity << "\n\t:Цена за 1 шт.: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << tee[i].PriceForOne << endl << endl;
+				SetConsoleTextAttribute(hStdOut, 15);
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\tЧай не найден\n";
+			to_menu(n, tee);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, tee);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, tee, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, tee); break;
+			case 1: Detete(n, tee, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 4:
+	{
+		system("cls");
+		string Proiz;
+		int  ComDel = 0;
+		cout << "\n\tВведите производителя: ";
+		cin >> Proiz;
+		int checking = 0;
+		system("cls");
+
+		for (int i(0); i < n; i++)
+		{
+			if (Proiz == tee[i].Manufacturer)
+			{
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tПроизводитель: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << tee[i].Manufacturer;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tТип чая: " << tee[i].TypeTea << "\n\tФорма упаковки: " << tee[i].PackingForm;
+				cout << "\n\tЦена за 1шт.: " << tee[i].PriceForOne << "\n\tКолличество: " << tee[i].Quantity << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Производитель не найден\n";
+			to_menu(n, tee);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, tee);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, tee, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, tee); break;
+			case 1: Detete(n, tee, ComDel); break;
+			}
+		}
+	}
+	break;
+
+	case 0: menu(n, tee);
+	default: SearchTea(n, tee);
+	}
+}
+
+//Запись изменений в файл      
+void RecordNewTeaFile(int n, Tea* tee)
+{
+	/*
+	Данная функция записывает в файл изменения
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	for (int i = 0; i < (n - 1); i++)
+	{
+		fout << i + 1 << ";" << tee[i].TypeTea << ";" << tee[i].PackingForm << ";" << tee[i].Manufacturer;
+		fout << ";" << tee[i].PriceForOne << ";" << ";\n";
+	}
+	fout.close();
+}
+
+//Удаление чая    +
+Tea* Detete(int n, Tea* tee, int comanda_del)
+{
+	/*
+	Данная функция удаляет comanda_del-го элемента массива
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	//------------------УДАЛЕНИЕ ЭЛЕМЕНТА-----------------------------------------------------------------------
+	//------- Шаг 1. Замена удаляемого элемента на крайний	элемент
+	string temp_Tea = tee[n - 1].TypeTea;
+	tee[n - 1].TypeTea = tee[comanda_del].TypeTea;
+	tee[comanda_del].TypeTea = temp_Tea;
+
+	string temp_Form = tee[n - 1].PackingForm;
+	tee[n - 1].PackingForm = tee[comanda_del].PackingForm;
+	tee[comanda_del].PackingForm = temp_Form;
+
+	string temp_Manuf = tee[n - 1].Manufacturer;
+	tee[n - 1].Manufacturer = tee[comanda_del].Manufacturer;
+	tee[comanda_del].Manufacturer = temp_Manuf;
+
+	int temp_Price = tee[n - 1].PriceForOne;
+	tee[n - 1].PriceForOne = tee[comanda_del].PriceForOne;
+	tee[comanda_del].PriceForOne = temp_Price;
+
+	int temp_Qua = tee[n - 1].Quantity;
+	tee[n - 1].Quantity = tee[comanda_del].Quantity;
+	tee[comanda_del].Quantity = temp_Qua;
+
+
+	//-------- Шаг 2. Новый масив
+	Tea* TeeNew = new Tea[n - 1];
+
+	//------- Шаг 3. Инициализация всех элементов к новому массиву кроме крайного
+	for (int i(0); i < (n - 1); i++)
+	{
+		TeeNew[i] = tee[i];
+	}
+
+	//------ Шаг 4. Удаление старого массива
+	delete[] tee;
+	tee = TeeNew;
+
+
+	//---------------Запись в файл 
+
+	RecordNewTeaFile(n, tee);
+
+	system("cls");
+	cout << "\n\n\n\n\t\tДанные удалены успешно.\n";
+	n--;
+	to_menu(n, tee);
+	return NULL;
+}
+
+//4 - сортировка чая(menu)
+Tea* SortTea(int n, struct Tea* tee)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту/значению по заданным параметрам
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\tСортировка\n";
+	SetConsoleTextAttribute(hStdOut, 2);
+	cout << "1 - По Типу чая \n";
+	cout << "2 - По Производителю\n";
+	cout << "3 - По Цене за шт.\n";
+	cout << "4 - По Форме упаковки\n";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SortTea(n, tee);
+	}
+
+	switch (comanda)
+	{
+	case 0: menu(n, tee); break;
+	case 1:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = tee[i].TypeTea;
+		}
+
+		SortStr(str1, n, tee);
+		Draw(n, tee);
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = tee[i].Manufacturer;
+		}
+
+		SortStr(str1, n, tee);
+		Draw(n, tee);
+	};
+	break;
+	case 3:
+	{
+		system("cls");
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << "\t\t\t\t\t1 - Возрастанию\n";
+		cout << "\t\t\t\t\t2 - Убыванию\n";
+		SetConsoleTextAttribute(hStdOut, 15);
+		int com;
+		cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (tee[i].PriceForOne > tee[j].PriceForOne)
+					{
+						swap(tee[i], tee[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (tee[i].PriceForOne < tee[j].PriceForOne)
+					{
+						swap(tee[i], tee[j]);
+					}
+			}
+		};
+		break;
+		default: SortTea(n, tee);
+		}
+	};
+	break;
+	case 4: 
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = tee[i].PackingForm;
+		}
+
+		SortStr(str1, n, tee);
+		Draw(n, tee);
+	}
+	break;
+	default: SortTea(n, tee);
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		tee[i].N = i + 1;
+	}
+	RecordNewTeaFile(n, tee);
+	Draw(n, tee);
+	return NULL;
+}
+
+//Сортировка 
+void SortStr(string* S, int N, Tea* tee)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту по заданным параметрам
+	Входные параметры -  1.Массив структуры данных; 2. Массив строк;
+	Выходной параметр - Отсутствует.
+	*/
+	
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str()) > 0) {
+				swap(tee[i], tee[j]);
+			}
+		}
+	}
+
+	/*for (int i = 0; i < N - 1; i++) {
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str()) > 0) {
+				swap(tee[i], tee[j]);
+			}
+		}
+	}*/
+
+		
+}
+
+//5 - Вывод данных о создателе
+void information(int n, struct Tea* tee)
+{
+	/*
+	Данная функция показывает информацию о разработчике программы;
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 2); 
+	gotoxy(0, 1);
+	cout << "Информация о создателе";
+
+	gotoxy(0, 3);
+	cout << "ФИО разработчика - Семиков Алексей ";
+	gotoxy(0, 4);
+	cout << "Курс - 2\n";
+	gotoxy(0, 5);
+	cout << "Возраст - 19 лет";
+
+	SetConsoleTextAttribute(hStdOut, 8);
+	int comanda;
+	cout << "\n\nДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		gotoxy(30, 10);
+		cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, tee);
+}

@@ -1,0 +1,53 @@
+#include <iostream>
+#include <Windows.h>
+#include <time.h>
+#define N 20
+using namespace std;
+
+void Sortirovka(int vector[]);
+
+void main()
+{
+	setlocale(0," ");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	
+	srand(time(NULL));
+
+
+	int vector[N]; 
+	for (int i = 0; i < N; i++) {
+		vector[i] = rand() % 20;
+	}
+
+	Sortirovka(vector);
+
+	system("pause");
+}
+
+
+void Sortirovka(int vector[])
+{
+	cout << "Исходный массив: ";
+	for (int i = 0; i < N; i++) {
+		cout << vector[i] << " ";
+	}
+	cout << "\n";
+	int k ;
+	
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j < N - i - 1; j++) {
+			if (vector[j] > vector[j + 1]) {
+				k = vector[j];
+				vector[j] = vector[j + 1];
+				vector[j + 1] = k;
+			}
+		}
+	}
+	cout << "Отсортированный массив: ";
+	for (int i = 0; i < N; i++) {
+		cout << vector[i] << " ";
+	}
+	cout << "\n";
+
+}

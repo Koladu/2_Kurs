@@ -1,0 +1,17 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <Windows.h>
+
+#define N 8
+#define vk printf("\n")
+
+struct FOOTBALL
+{
+	char* nam;
+	char* league;
+	int kollvo;
+};
+
+void sort_i_zapis(FOOTBALL fut[N]);

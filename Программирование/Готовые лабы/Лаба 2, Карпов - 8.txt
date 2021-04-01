@@ -1,0 +1,47 @@
+#define N 5
+#include <iostream>
+#include <time.h>
+
+using namespace std;
+
+void Razn(double vector_1[], double vector_2[]);
+
+void main()
+{
+	srand(time(NULL));
+	setlocale(0, "");
+	
+	double vector_1[N], vector_2[N];
+
+	for (int i = 0; i < N; i++ ) {
+		vector_1[i] = rand() % (30 - 15) + 15;
+		vector_2[i] = rand() % (20 - 10) + 10;
+	}
+	cout << "vector_1 = ";
+	for (int i = 0; i < N; i++) {
+		cout << vector_1[i] << " ";
+	}
+	cout << "\nvector_2 = ";
+	for (int i = 0; i < N; i++) {
+		cout << vector_2[i] << " ";
+	}
+	cout << "\n";
+
+	Razn(vector_1, vector_2);
+
+	system("pause");
+}
+
+
+void Razn(double vector_1[], double vector_2[])
+{
+	double new_vector[N];
+	for (int i = 0; i < N; i++) {
+		new_vector[i] = vector_1[i] - vector_2[i];
+	}
+	cout << "new_vector = vector_1 - vector_2 \nnew_vector = ";
+	for (int i = 0; i < N; i++) {
+		cout << new_vector[i] << " ";
+	}
+	cout << "\n";
+}

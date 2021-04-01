@@ -1,0 +1,29 @@
+#include "Header.h"
+
+int main()
+{
+	setlocale(0, "");
+
+	char nam[N][20] = {
+		"Павел Заречный", "Николай Гоголь", "Григорий Вернин", "Антон Забэ",
+		"Владимир Веринский","Юрий Гагарин", "Сергей Лазарев", "Андрей Захаров"
+	};
+
+	int month[] = { 12,2,4,5,10,4,8,9 };
+
+	char znak[N][20] = {"Стрелец","Козерог","Рыбы","Дева","Рыбы","Скорпион","Лев","Телец"};
+
+	NOTE note[N];
+
+	for (int i = 0; i < N; i++) {
+		note[i].month = month[i];
+		note[i].nam = nam[i];
+		note[i].znak = znak[i];
+	}
+
+	printing(note);
+	Sorting(note);
+	Poisk(note);
+
+	system("pause");
+}

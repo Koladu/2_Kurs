@@ -1,0 +1,71 @@
+#include "Header.h"
+
+//Вывод таблицы
+void printing(NOTE note[N]) {
+
+	printf_s("\t\tЗнак Зодиака\n");
+	printf_s("%18s%16s%18s", "Имя и Фамилия", "Знак Зодиака", "Месяц рождения\n"); vk;
+	for (int i = 0; i < N; i++) {
+		printf_s("%18s\t", note[i].nam);
+		printf_s("%8s\t", note[i].znak);
+		printf_s("%4d", note[i].month);
+		vk;
+	}
+	vk;
+}
+
+//Сортировка знаков Зодиака по алфавиту
+void Sorting(NOTE note[N]) {
+
+
+	printf("Сортировка знаков Зодиака по алфавиту:\n");
+
+	char* name = new char[N];
+	int* number = new int[N];
+
+	for (int i = 0; i < N; i++) {
+		number[i] = i;
+		name[i] = (char)(note[i].znak[0]);
+	}
+
+	int k = 0; int c = 0;
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if ((char)(name[j]) > (char)(name[j + 1])) {
+				k = name[j];
+				name[j] = name[j + 1];
+				name[j + 1] = k;
+
+				c = number[j];
+				number[j] = number[j + 1];
+				number[j + 1] = c;
+			}
+		}
+	}vk;
+	
+	for (int i = 0; i < N; i++) {
+		std::cout << note[number[i]].znak << "\n";
+	}
+	delete[] name;
+	delete[] number; vk;
+
+}
+
+//Вывод информации о человеке, по месяцу рождения
+void Poisk(NOTE note[N]) {
+
+	int mes, k = 0;
+	std::cout << "Введите месяц рождения: ";
+	std::cin >> mes;
+
+	for (int i = 0; i < N; i++) {
+		if (note[i].month == mes) {
+			printf_s("Данные о людях родившихся в этот месяц: %s - %s\n", note[i].nam, note[i].znak);
+			k++;
+		}
+	}
+	if (k == 0) {
+		std::cout << "Человека родившегося " << mes << " месяца нету" << std::endl;
+	}
+}

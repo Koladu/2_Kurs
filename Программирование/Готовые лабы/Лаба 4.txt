@@ -1,0 +1,76 @@
+#include<iostream>
+#include <time.h>
+#define N 7
+
+template <typename T>
+void impl(T a[][N], int & g, int & k)
+{
+	g = a[1][1], k = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+
+			if (g > a[i][j]) {
+				g = a[i][j];
+			}
+		}
+	}
+	
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if (g == a[i][j]) {
+				k++;
+			}
+		}
+	}
+	
+}
+
+int main()
+{
+	setlocale(0, "");
+	srand(time(NULL));
+
+	short int a;
+	int g, k;
+	//Заполнение числового массива
+	short int mas[N][N];
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			mas[i][j] = rand() % 20;
+		}
+	}
+	
+	//Заполнение буквенного массива
+	char mas1[N][N];
+	for (int i = 0; i < N; ) {
+		for (int j = 0; j < N; ) {
+			char ch = rand() % (122-65) + 65;
+			if (isalnum(ch)) {
+				mas1[i][j] = ch;
+				j++;
+			}
+		}
+		i++;
+	}
+	
+	//Вывод массивоф
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) printf_s("%6d", mas[i][j]);
+
+		printf_s("\t");
+
+		for (int j = 0; j < N; j++)		printf_s("%6c", mas1[i][j]);
+
+		printf_s("\n");
+	}
+
+	impl(mas, g, k);
+	printf_s("\nМинимальный элемент массива из чисел = %d\n", g);
+	printf_s("Колличество минимальных значений = %d\n\n", k);
+
+	impl(mas1, g, k);
+	printf_s("Минимальный элемент массива из букв = %d\n", g);
+	printf_s("Колличество минимальных значений = %d\n\n", k);
+
+	system("pause");
+}

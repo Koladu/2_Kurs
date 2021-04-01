@@ -1,0 +1,9 @@
+﻿  Source.cpp
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(85,28): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(86,44): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(86,34): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(87,34): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(88,40): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(88,30): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\lab8\Source.cpp(89,30): warning C4244:  аргумент: преобразование "double" в "int", возможна потеря данных
+  lab8.vcxproj -> C:\Users\mitja\OneDrive\Joker\ФВБО-01-18\2 Семестр\Программирование\Готовые лабы\lab8\Debug\lab8.exe

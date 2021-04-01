@@ -1,0 +1,24 @@
+#include "Header.h"
+
+int main()
+{
+	setlocale(0, "");
+
+	long int platelchik[] = { 135643534,955656700,345477567,767342227,346456700 };
+	long long int poluchatel[] = { 745643522,235656756,965477527,457342268,366456743 };
+	double summa[] = {43534,55650,5670,76767,3560};
+
+	ORDER order[N];
+
+	for (int i = 0; i < N; i++) {
+		order[i].Summa = summa[i];
+		order[i].Platelchik = platelchik[i];
+		order[i].Poluchatel = poluchatel[i];
+	}
+
+	printing(order);
+	sort(order);
+	Bol_50k(order);
+
+	system("pause");
+}

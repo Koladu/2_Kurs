@@ -1,0 +1,77 @@
+#include <iostream>
+#include <ctype.h>
+#include <string.h>
+using namespace std;
+
+void printmas(int i, int j,int mas[12][6][7])
+{
+	/*printf("%11s", " ");
+	for (int m = i; m < j; m++) {
+		cout << "Ox";
+		printf("%1x", m + 1);
+		cout << " ";
+	}
+	cout << endl;*/
+	//====================================================================
+	for (int y = 0; y < 7; y++)
+	{
+		//PrintSymb(y + 1);
+		for (int m = i; m < j; m++)
+		{
+			for (int x = 0; x < 6; x++)
+			{
+				if (mas[m][x][y] == 0)
+				{
+					printf("   ");
+				}
+				else { printf("%3x", mas[m][x][y]); }
+			}
+		}
+		cout << '\n';
+	}
+	cout << endl;
+
+}
+
+int main()
+{
+	setlocale(0, "");
+
+	int nachalo[] = { 6,2,2,5,7,3,5,1,4,6,2,4 };
+	int kollvo[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+	int t, k = 0, mas[12][6][7];
+	int temp[42] = { 0 };
+
+	for (int m = 0; m < 12; m++)
+	{
+		t = nachalo[m];
+		//Заполнение побочного массива
+		for (int i = 0; i < kollvo[m]; i++)
+		{
+			temp[t + i - 1] = i + 1;
+		}
+
+		//Заполнение календаря
+		for (int i = 0; i < 6; i++)
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				mas[m][i][j] = temp[k];
+				k++;
+			}
+		}
+
+		//Очистка побочного массива
+		for (int i = 0; i < 42; i++)
+		{
+			temp[i] = 0;
+		} 
+		k = 0;
+	}
+
+	printmas(0, 3, mas);
+	printmas(3, 6, mas);
+	printmas(6, 9, mas);
+	printmas(9, 12, mas);
+	system("pause");
+}

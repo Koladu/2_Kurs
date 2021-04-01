@@ -1,0 +1,220 @@
+#include "Header.h"
+
+//Нахождение минимальной средней оценки
+void F_min_sr(student vmc[N]) {
+	float k = 0;
+	int g = 0;
+	printf("Студенты у которых максимальная средняя оценка: ");
+	for (int i = 0; i < N; i++) {
+		if (k < vmc[i].sr_oc) {
+			k = vmc[i].sr_oc;
+			g = i;
+		}
+	}
+	for (int i = 0; i < N; i++) {
+		if (k == vmc[i].sr_oc) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//Студенты чья средняя оценка меньше 3.5
+void F_men_3_5(student vmc[N]) {
+	float k = 3.5;
+	printf("Студенты у которых средняя оценка меньше 3.5: ");
+	for (int i = 0; i < N; i++) {
+		if (vmc[i].sr_oc < k) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//Студенты которые посещали 5-ое занятие
+void F_pos_5(student vmc[N]) {
+	printf("Студенты которые посещали 5 занятие: ");
+	for (int i = 0; i < N; i++) {
+		if (vmc[i].pos[4] == 1) {
+			printf("%s  ", vmc[i].nam);
+		}
+	} vk; vk;
+}
+//Студенты которые получили 5 на 8-м занятии
+void F_pol_5(student vmc[N]) {
+	printf("Студенты которые на 8 занятии получили 5: ");
+	for (int i = 0; i < N; i++) {
+		if (vmc[i].ocenka[7] == 5) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//На 4 занятии получили 3 или 4
+void F_3_and_4(student vmc[N]) {
+	printf("Студенты которые на 4 занятии получили 3 или 4: ");
+	for (int i = 0; i < N; i++) {
+		if ((vmc[i].ocenka[3] == 3) || (vmc[i].ocenka[3] == 4)) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//Прогуляли последнее занятие
+void F_prog_posl(student vmc[N]) {
+	printf("Студенты которые которые прогуляли последнее занятие: ");
+	for (int i = 0; i < N; i++) {
+		if (vmc[i].pos[9] == 0) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//Прогуляли менее 5 занятий
+void F_men_5(student vmc[N]) {
+	printf("Студенты которые которые прогуляли менее 5 занятий: ");
+	int k = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if (vmc[i].pos[j] == 0) {
+				k++;
+			}
+		}
+		if (k < 5) {
+			printf("%s  ", vmc[i].nam);
+		}
+		k = 0;
+	}vk; vk;
+}
+//Прогуляли больше всех занятий
+void F_bol_vseh(student vmc[N]) {
+	printf("Студенты которые пропустил больше всех занятий: ");
+	int k = 0; int g = 0;
+	int* mas = new int[N];
+	//подсчет пропусков у каждого студента
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if (vmc[i].pos[j] == 0) {
+				k++;
+			}
+		}
+		mas[i] = k;
+		k = 0;
+	}
+	k = 0;
+	for (int i = 0; i < N; i++) {
+		if (k < mas[i]) {
+			k = mas[i];
+		}
+	}
+	for (int i = 0; i < N; i++) {
+		if (mas[i] == k) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}
+
+	delete[] mas; vk; vk;
+}
+//Учатся на 3 курсе
+void F_na_3_kurs(student vmc[N]) {
+	printf("Студенты которые учатся на 3 курсе: ");
+	for (int i = 0; i < N; i++) {
+		if (vmc[i].kurs == 3) {
+			printf("%s  ", vmc[i].nam);
+		}
+	}vk; vk;
+}
+//Сортировка по убыванию средних оценок
+void F_sort_sr(student vmc[N]) {
+	printf("Убывание по средним оценкам: \n");
+	float* sr = new float[N];
+	int* poz = new int[N];
+	for (int i = 0; i < N; i++) {
+		sr[i] = vmc[i].sr_oc;
+		poz[i] = i;
+	}
+	float k = 0; int g = 0;
+
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j < N - 1; j++) {
+			if (sr[j] < sr[j + 1]) {
+				k = sr[j];
+				sr[j] = sr[j + 1];
+				sr[j + 1] = k;
+
+				g = poz[j];
+				poz[j] = poz[j + 1];
+				poz[j + 1] = g;
+
+			}
+		}
+	}
+	for (int i = 0; i < N; i++) {
+		printf("%s - %1.1f", vmc[poz[i]].nam, sr[i]); vk;
+	}
+	delete[] sr;
+	delete[] poz; vk;
+}
+//Сортировка по возрастанию первых букв имени
+void F_imena(student vmc[N]) {
+
+
+	printf("Имена студентов по первой буквы имени:\n");
+	vk; vk;
+
+	char* name = new char[N];
+	int* number = new int[N];
+
+	for (int i = 0; i < N; i++) {
+		number[i] = i;
+		name[i] = (char)(vmc[i].nam[0]);
+	}
+	int k = 0; int c = 0;
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if ((char)(name[j]) > (char)(name[j + 1])) {
+				k = name[j];
+				name[j] = name[j + 1];
+				name[j + 1] = k;
+
+				c = number[j];
+				number[j] = number[j + 1];
+				number[j + 1] = c;
+			}
+		}
+	}
+	vk;
+
+	for (int i = 0; i < N; i++) {
+		std::cout << vmc[number[i]].nam << "\n";
+	}
+	delete[] name;
+	delete[] number; vk;
+
+}
+//Сортировка по возрастанию курсов
+void F_vozr_kurs(student vmc[N]) {
+				printf("Имена студентов по возрастанию курсов:\n");
+				int* kurs = new int[N];
+				int* poz = new int[N];
+				int k = 0; int g = 0;
+				for (int i = 0; i < N; i++) {
+					kurs[i] = vmc[i].kurs;
+					poz[i] = i;
+				}
+
+				for (int i = 0; i < N - 1; i++) {
+					for (int j = 0; j < N - 1; j++) {
+						if (kurs[j] > kurs[j + 1]) {
+							k = kurs[j];
+							kurs[j] = kurs[j + 1];
+							kurs[j + 1] = k;
+
+							g = poz[j];
+							poz[j] = poz[j + 1];
+							poz[j + 1] = g;
+
+						}
+					}
+				}
+
+				for (int i = 0; i < N; i++) {
+					printf("%s - %d", vmc[poz[i]].nam, kurs[i]); vk;
+				}
+				delete[] poz; delete[] kurs;
+				vk;
+			}

@@ -1,0 +1,14 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string>
+#define N 8
+
+struct ZNAK
+{
+	char* nam;
+	char* zodiac;
+	int month;
+};
+
+void chtenie(ZNAK znak[N]);

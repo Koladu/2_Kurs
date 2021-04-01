@@ -1,0 +1,51 @@
+#include "Header.h"
+
+void printing(FOOTBALL fut[N]) {
+
+	//Вывод таблицы
+	printf_s("\t\tФутбольная команда\n\n");
+	printf_s("%11s%13s%20s", "Название", "Лига", "Колличество\n"); vk;
+
+	for (int i = 0; i < N; i++) {
+		printf_s("%10s%17s%12d", fut[i].nam, fut[i].league, fut[i].kollvo);
+		vk;
+	}vk;
+}
+
+void sorting(FOOTBALL fut[N]) {
+
+	char* name = new char[N];
+	int* Num = new int[N];
+
+	for (int i = 0; i < N; i++) {
+		Num[i] = i;
+		name[i] = (char)(fut[i].nam[0]);
+	}
+	int k = 0; int c = 0;
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if ((char)(name[j]) > (char)(name[j + 1])) {
+				k = name[j];
+				name[j] = name[j + 1];
+				name[j + 1] = k;
+
+				c = Num[j];
+				Num[j] = Num[j + 1];
+				Num[j + 1] = c;
+			}
+		}
+	}
+	vk;
+
+	printf_s("\t\tФутбольная команда\n\n");
+	printf_s("%11s%13s%20s", "Название", "Лига", "Колличество\n"); vk;
+	for (int i = 0; i < N; i++) {
+		printf_s("%10s%17s%12d", fut[Num[i]].nam, fut[Num[i]].league, fut[Num[i]].kollvo);
+		vk;
+	}vk;
+
+	delete[] name;
+	delete[] Num; vk;
+
+}

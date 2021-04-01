@@ -1,0 +1,105 @@
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+#include <string>
+#include <cstdio>
+#include <stdio.h>
+
+using namespace std;
+
+void UI();						//вывод названия теста
+void Input();					//ввод ответа
+void GetArrTags(int mas[11]);	//поиск меток
+void Test();			//тест
+void Result(int);				//обработка и вывод результата
+
+int ans = 0;					//ответ
+int sum = 0;					//сумма ответов
+int arrTags[11];				//массив меток (&)
+
+int main() {	
+	setlocale(LC_ALL, "Russian");
+	SetConsoleTitle(L"Психологический тест");
+
+	GetArrTags(arrTags);
+	Test();
+	Result(sum);
+}
+void GetArrTags(int arr[11]) {
+	fstream testFile("Test.dat", ios::in);
+	int j = 0, i = 0;
+	char ch;
+
+	while (testFile.get(ch)) {
+		if (ch == '&') {
+			arr[i] = j;
+			i++;
+		}
+		if (ch == '\n') {							//прибавляем j когда встречаем \n так, как если этого не будет цикл пропустит \n и весь текст съедет
+			j++;
+		}
+		j++;
+	}
+	testFile.close();
+}
+void Test() {
+	int beginPos = 0;								//позиция начала вопроса
+	int endPos = 0;									//позиция конца вопроса
+	int pos;										//текущая позиция
+	char symb;
+
+	fstream testFile("Test.dat", ios::in);			//открытие файла для чтения
+
+	for (int i = 0; i < 10; i++) {
+		beginPos = arrTags[i];						
+		endPos = arrTags[i + 1];					
+		pos = beginPos + 1;							
+		endPos -= 5;								//вычитаем те 5 позиций которые прибавили
+		UI();
+		testFile.seekg(pos, ios_base::beg);			//установка начала вопроса
+		while (pos != endPos) {						//вывод вопроса
+			testFile.get(symb);
+			cout << symb;
+			pos++;
+		}
+		Input();
+		while (ans > 3 || ans < 1) {				//обработка неправильного ввода
+			Input();
+		}
+		if (i + 1 > 10) {
+			break;
+		}
+	}
+	testFile.close();								//закрытие файла
+}
+void Input() {
+	cout << "\nВаш ответ: ";
+	cin >> ans;
+	if (ans == 1)									//если пользователь ввёл "1" прибавляем 5 баллов
+		sum += 1;
+	else if (ans == 2)								//если пользователь ввёл "2" прибавляем 2 балл
+		sum += 2;
+	else if (ans == 3)								//если пользователь ввёл "3" прибавляем 1 балл
+		sum += 3;
+}
+void UI() {
+	system("cls");
+	cout << "Эмоциональная устойчивость\n";
+}
+void Result(int res) {
+	string result;
+	UI();
+	cout << "\n";
+	//вывод на основе набранных пользователем баллов
+	if (res >= 10 && res <= 14) {
+		result = "Ваши нервы в порядке. Вы можете успешно контролировать свои эмоции, случайные стрессы не выводят вас из равновесия. На всякий случай проверьте себя через недельку. ";
+	}
+	else if (res >= 15 && res <= 25) {
+		result = "Ваше противостояние стрессам происходите переменным успехом. Вы стараетесь не давать себе мучиться понапрасну из-за житейских коллизий, но все-таки время от времени какая-то несчастная случайность заставляет вас переживать и конфликтовать. Чаще находите для себя повод расслабиться и сменить деятельность.";
+	}
+	else if(res >= 26 && res <= 30) {
+		result = "Жизнь для вас - поле боя, и сражения бывают нешуточные. Но все-таки и фронтовики иногда отдыхают. Организм у вас, возможно, крепкий, но вряд ли ""железный"". Хорошо бы вам научиться отстраняться от жизненных драм, не принимать их близко к сердцу, сохраняя трезвое отношение к действительности.";
+	}
+	cout << "Результат:\n" << result;
+	system("pause >> null");
+}

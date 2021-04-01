@@ -1,0 +1,842 @@
+#include "Header.h"
+
+string FileName = "doffice_bin.db";  // Путь к файлу и/или имя файла
+
+HDC hdc = GetDC(GetConsoleWindow());
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //получаем дескриптор 
+
+//Вывод меню, выбор действия и перенаправление на функции в зависимости от выбора
+void menu(int n, struct Dekanat* dekanat)
+{	 /*
+	 Данная функция управляется номером команды	для использования нужных команд
+	 Входной параметр - Массив структуры данных и команда для удаления элемента;
+	 Выходной параметр - Отсутствует.
+	 */
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);	  // Желтый
+	cout << "\t\t\t\t\t\t     Меню\n";
+	SetConsoleTextAttribute(hStdOut, 3);  // Циан
+	cout << "\t\t\t\t\t1. Вывод баз данных на экран\n";
+	cout << "\t\t\t\t\t2. Добавление студента\n";
+	cout << "\t\t\t\t\t3. Поиск и удаление\n";
+	cout << "\t\t\t\t\t4. Сортировка\n";
+	cout << "\t\t\t\t\t5. Информация о студенте\n";
+	SetConsoleTextAttribute(hStdOut, 8);	// Серый
+	cout << "\n\t\t\t\t\t0. Выход\n";
+	SetConsoleTextAttribute(hStdOut, 14); // Желтый
+	cout << "\t\t\t\t\t-----------------------------\n";
+
+
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);  // белый цвет
+	cout << "\n\t\t\t\t   Выберите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		menu(n, dekanat);
+	}
+
+	switch (comanda)
+	{
+	case 0: exit(0);  //выход
+	case 1: Draw(n, dekanat); break;   //1 - вывод базы данных на экран(menu)
+	case 2: AddStudent(n, dekanat); break;  //2 - добавление продукта(menu)
+	case 3: SearchStudent(n, dekanat); break;  //3 - поиск и удаление продукта(menu)
+	case 4: SortStudent(n, dekanat);	 break;  //4 - сортировка продуктов(menu)
+	case 5: information(n, dekanat); break;  //5 - информация о студенте
+	default: menu(n, dekanat);
+	}
+}
+
+//1 - вывод базы данных на экран(menu)+
+void Draw(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция выводит БД в консоли
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 3);
+	gotoxy(1, 0);
+	cout << "№ |";
+	gotoxy(4, 0);
+	cout << "Номер зачетки          |";
+	gotoxy(20, 0);
+	cout << "Фио студента        |";
+	gotoxy(39, 0);
+	cout << "Телефон студента    |";
+	gotoxy(57, 0);
+	cout << "Средняя успеваемость     |";
+	cout << "\n-------------------------------------------------------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 15);
+	for (int i = 0; i < n; i++)
+	{
+		gotoxy(1, i + 2);
+		cout << i + 1;
+		gotoxy(4, i + 2);
+		cout << dekanat[i].NumberRecord;
+		gotoxy(20, i + 2);
+		cout << dekanat[i].NameStudent;
+		gotoxy(39, i + 2);
+		cout << dekanat[i].NumberStudent;
+		gotoxy(57, i + 2);
+		cout << dekanat[i].AveragePerfomance;
+		gotoxy(3, i + 2);
+		cout << "|";
+		gotoxy(19, i + 2);
+		cout << "|";
+		gotoxy(38, i + 2);
+		cout << "|";
+		gotoxy(56, i + 2);
+		cout << "|";
+		gotoxy(78, i + 2);
+	}
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\n-------------------------------------------------------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 15);
+	int com;
+	cout << "\n Введите номер команды и нажмите ENTER \n(1 - Сортировка; 0 - Выход в меню): ";
+	while (!(cin >> com))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		Draw(n, dekanat);
+	}
+	switch (com)
+	{
+	case 0: menu(n, dekanat);	break;
+	case 1: SortStudent(n, dekanat); break;
+	default: Draw(n, dekanat);
+	}
+}
+
+//Данные для БД+
+void WriteBeginText()
+{
+	/*
+	Данная функция создает файл и записывает строк
+	Входной параметр - Отсутствует;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	fout << "1;31;Марвин Миша      ;89037491264;3.9;" << endl;
+	fout << "2;33;Евдокимов Женя   ;89059356273;4.0;" << endl;
+	fout << "3;4 ;Воронов Глеб     ;89050358882;4.2;" << endl;
+	fout << "4;10;Еремия Алена     ;89060317300;4.7;" << endl;
+	fout << "5;21;Воронин Леонид   ;89342255552;3.5;" << endl;
+	fout << "6;32;Морозов Никита   ;89043793854;3.7;" << endl;
+	fout << "7;11;Новселов Григорий;88005553535;4.6;" << endl;
+	fout << "8;2 ;Петров Александр ;89376782473;4.1;" << endl;
+	fout.close();
+}
+
+//выход в главное меню и проверка на ввод(нет ссылок)+
+void to_menu(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция предназначена для выхода в меню
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	SetConsoleTextAttribute(hStdOut, 15);
+	int comanda;
+	cout << "\n\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		cout << "\n\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, dekanat);
+}
+
+//выравнивание базы данных(нет ссылок)+
+void gotoxy(int x, int y)
+{
+	/*
+	Данная функция выравнивает БД в консоли
+	Входной параметр - Задающие координаты для выравнивания БД в консоли;
+	Выходной параметр - Отсутствует.
+	*/
+	COORD p = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+}
+
+//Считывание кол-ва строк из файла+
+int number()
+{
+	/*
+	Данная функция считает количество строк из файла
+	Входной параметр - Отсутствует;
+	Выходной параметр - Количество продуктов.
+	*/
+	int count = 0;
+
+	ifstream file;
+	file.open(FileName);
+
+	while (!file.eof())
+	{
+		if (file.get() == '\n')
+			count++;
+	}
+
+	Dekanat* Pr = new Dekanat[count];
+	return count;
+}
+
+//Инициализация массивоф данными+
+Dekanat* Initialization(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция инициализирует массив структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	ifstream fin;
+	fin.open(FileName);
+
+	char N1[3], NameStudent1[20], NumberStudent1[20], AveragePerfomance1[20], NumberRecord1[20];
+
+	//---------Инициализация масивов символов к нулевому символу--------------------
+
+	for (int i = 0; i < 3; i++) {
+		N1[i] = '\0';
+	}
+
+	for (int i = 0; i < 20; i++) {
+		NameStudent1[i] = NumberStudent1[i] = AveragePerfomance1[i]  = '\0';
+	}
+	for (int i = 0; i < 20; i++) {
+		NumberRecord1[i] = '\0';
+	}
+
+	//------------------------------------------------------------------------------
+
+	for (int i = 0; i < n; i++)
+	{
+		int count = 0;
+		char ch;
+		while ((ch = fin.get()) != ';')
+		{
+			N1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NumberRecord1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NameStudent1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NumberStudent1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			AveragePerfomance1[count] = ch; count++;
+		}
+		count = 0;
+
+		dekanat[i].N = atoi(N1);
+		dekanat[i].AveragePerfomance = AveragePerfomance1;
+		dekanat[i].NumberRecord = atoi(NumberRecord1);
+		dekanat[i].NameStudent = NameStudent1;
+		dekanat[i].NumberStudent = NumberStudent1;
+	}
+	fin.close();
+	return NULL;
+}
+
+//2 - добавление студета(menu)+
+Dekanat* AddStudent(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция предназначена для добавления нужного количество элементов массива структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	int nAdd;
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "Введите количество добавляемых студетов: ";
+	while (!(cin >> nAdd))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		cout << endl << "\t\tОШИБКА!\nВведите заново количество добавленных студентов: ";
+	}
+
+	Dekanat* PrNew = new Dekanat[n + nAdd];
+
+	for (int i(0); i < n; i++)
+	{
+		PrNew[i] = dekanat[i];
+	}
+	system("cls");
+	delete[] dekanat;
+	dekanat = PrNew;
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		char ImyaStud[40];
+		char Numb[40];
+		char Locat[40];
+		char f[48];
+
+		SetConsoleCP(1251); //Перевод в кодировку
+		SetConsoleOutputCP(1251);
+
+		SetConsoleTextAttribute(hStdOut, 3);
+		//=============================
+		cout << endl << "Введите номер зачетки " << i + 1 << "-го студента: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+
+		cin >> dekanat[i].NumberRecord;
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите Фамилию и Имя " << i + 1 << "-го студента: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(f, 48);	//Для задержки
+		cin.getline(ImyaStud, 40);
+		dekanat[i].NameStudent = (string)ImyaStud; //+++
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите номер телефона " << i + 1 << "-го студента: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(Numb, 40);
+		dekanat[i].NumberStudent = (string)Numb;//+++
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите среднюю успеваемость " << i + 1 << "-го студента: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(Locat, 40);
+		dekanat[i].AveragePerfomance = (string)Locat;
+
+		SetConsoleTextAttribute(hStdOut, 3);
+		system("cls");
+	}
+
+	ofstream fout;
+	fout.open(FileName, ios_base::app);
+
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		fout << i + 1 << ";" << PrNew[i].NumberRecord << ";" << PrNew[i].NameStudent << ";" << PrNew[i].NumberStudent;
+		fout << ";" << PrNew[i].AveragePerfomance << ";\n";
+	}
+
+	fout.close();
+
+	n += nAdd;
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\n\n\t\t\t ------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t | Данные добавленных студентов сохранены | \n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\t\t\t ------------------------------------------\n";
+
+	to_menu(n, dekanat);
+	return NULL;
+}
+
+//3 - поиск и удаление студента(menu)+
+void SearchStudent(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция предназначена для поиска элемента массива(и при желаний для дальнейшего удаления элемента массива)
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	SetConsoleCP(1251); //Перевод в кодировку
+	SetConsoleOutputCP(1251);
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t\t     Поиск\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t\t\t\t\t1 - По порядковому номеру\n";
+	cout << "\t\t\t\t\t2 - По номеру зачетки\n";
+	cout << "\t\t\t\t\t3 - По средней успеваемости \n";
+	cout << "\t\t\t\t\t4 - По номеру телефона \n";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SearchStudent(n, dekanat);
+	}
+
+	switch (comanda)
+	{
+	case 1:
+	{
+		system("cls");
+		int No, No1;
+		cout << "\n\tВведите № искомого студента (1 - " << n << "): ";
+		while (!(cin >> No1) || No1 > n || No1 < 1)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "Вы ввели неправильно порядковый номера студента\n";
+			cout << "\n\tВведите заново № искомого студента (1 - " << n << "): ";
+		}
+		No = No1 - 1;
+
+		system("cls");
+		cout << "\t№ ";
+		SetConsoleTextAttribute(hStdOut, 10);
+		cout << No1;
+		SetConsoleTextAttribute(hStdOut, 15);
+		cout << "\n\tНомер зачетки: " << dekanat[No].NumberRecord << "\n\tФамилия и Имя студента: " << dekanat[No].NameStudent << "\n\tНомер студента: " << dekanat[No].NumberStudent;
+		cout << "\n\tСредняя успеваемость: " << dekanat[No].AveragePerfomance << endl << endl;
+		cout << "\n\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+		int com;
+		cout << "\n\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com) || com > 1 || com < 0)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 0: menu(n, dekanat); break;
+		case 1: Detete(n, dekanat, No); break;
+		}
+
+
+	};
+	break;
+
+	case 2:
+	{
+		system("cls");
+		int code;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер зачетки: ";
+		cin >> code;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (code == dekanat[i].NumberRecord)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tНомер: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << dekanat[i].NumberRecord;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tФамилия и Имя студента: " << dekanat[i].NameStudent << "\n\tНомер студента: " << dekanat[i].NumberStudent;
+				cout << "\n\tСредняя успеваемость: " << dekanat[i].AveragePerfomance << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Номер не найден\n";
+			to_menu(n, dekanat);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, dekanat); break;
+			case 1: Detete(n, dekanat, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 3:
+	{
+		system("cls");
+		string LifePr;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите среднюю успеваемость: ";
+		while (!(cin >> LifePr))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите среднюю успеваемость: ";
+		}
+
+		for (int i(0); i < n; i++)
+		{
+			if (LifePr == dekanat[i].AveragePerfomance)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1) << "\n\tНомер зачетки: " << dekanat[i].NumberRecord << "\n\tФамилия и Имя студента: " << dekanat[i].NameStudent;
+				cout << "\n\tНомер студента: " << dekanat[i].NumberStudent << "\n\tСредняя успеваемость: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << dekanat[i].AveragePerfomance;
+				SetConsoleTextAttribute(hStdOut, 15);
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\tCтудент не найден\n";
+			to_menu(n, dekanat);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, dekanat); break;
+			case 1: Detete(n, dekanat, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 4:
+	{
+		system("cls");
+		string Numb;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер студента: ";
+		cin >> Numb;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (Numb == dekanat[i].NumberStudent)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tНомер: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << dekanat[i].NumberStudent;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout <<"\n\tНомер зачетки: " << dekanat[i].NumberRecord << "\n\tФамилия и Имя студента: " << dekanat[i].NameStudent;
+				cout << "\n\tСредняя успеваемость: " << dekanat[i].AveragePerfomance << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Номер студента не найден\n";
+			to_menu(n, dekanat);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, dekanat); break;
+			case 1: Detete(n, dekanat, ComDel); break;
+			}
+		}
+	}
+	break;
+
+	case 0: menu(n, dekanat);
+	default: SearchStudent(n, dekanat);
+	}
+}
+
+//Добавление студентовы + 
+void NewStudentRecordFile(int n, Dekanat* dekanat)
+{
+	/*
+	Данная функция записывает в файл изменения
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	for (int i = 0; i < (n - 1); i++)
+	{
+		fout << i + 1 << ";" << dekanat[i].NumberRecord << ";" << dekanat[i].NameStudent << ";" << dekanat[i].NumberStudent;
+		fout << ";" << dekanat[i].AveragePerfomance << ";" << ";\n";
+	}
+	fout.close();
+}
+
+//Удаление студентов+
+Dekanat* Detete(int n, Dekanat* dekanat, int comanda_del)
+{
+	/*
+	Данная функция удаляет comanda_del-го элемента массива
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	//------------------УДАЛЕНИЕ ЭЛЕМЕНТА-----------------------------------------------------------------------
+	//------- Шаг 1. Замена удаляемого элемента на крайний	элемент
+	int temp_Code = dekanat[n - 1].NumberRecord;
+	dekanat[n - 1].NumberRecord = dekanat[comanda_del].NumberRecord;
+	dekanat[comanda_del].NumberRecord = temp_Code;
+
+	string name_Pr = dekanat[n - 1].NameStudent;
+	dekanat[n - 1].NameStudent = dekanat[comanda_del].NameStudent;
+	dekanat[comanda_del].NameStudent = name_Pr;
+
+	string temp_Place = dekanat[n - 1].NumberStudent;
+	dekanat[n - 1].NumberStudent = dekanat[comanda_del].NumberStudent;
+	dekanat[comanda_del].NumberStudent = temp_Place;
+
+	string tempi = dekanat[n - 1].AveragePerfomance;
+	dekanat[n - 1].AveragePerfomance = dekanat[comanda_del].AveragePerfomance;
+	dekanat[comanda_del].AveragePerfomance = tempi;
+
+
+	//-------- Шаг 2. Новый масив
+	Dekanat* PrNew = new Dekanat[n - 1];
+
+	//------- Шаг 3. Инициализация всех элементов к новому массиву кроме крайного
+	for (int i(0); i < (n - 1); i++)
+	{
+		PrNew[i] = dekanat[i];
+	}
+
+	//------ Шаг 4. Удаление старого массива
+	delete[] dekanat;
+	dekanat = PrNew;
+	//--------------------------------------
+
+	//---------------Запись в файл ---------------------------------
+
+	NewStudentRecordFile(n, dekanat);
+
+	//---------------------------------------------------------------
+	system("cls");
+	cout << "\n\n\n\n\t\tДанные удалены успешно.\n";
+	n--;
+	to_menu(n, dekanat);
+	return NULL;
+}
+
+//4 - сортировка продуктов(menu)
+Dekanat* SortStudent(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту/значению по заданным параметрам
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t\t     Сортировка\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t\t\t\t\t1 - По Номеру \n";
+	cout << "\t\t\t\t\t2 - По Фамилии Студента\n";
+	cout << "\t\t\t\t\t3 - По Средней оценке\n";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SortStudent(n, dekanat);
+	}
+
+	switch (comanda)
+	{
+	case 0: menu(n, dekanat); break;
+	case 1:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = dekanat[i].NumberRecord;
+		}
+
+		SortStr(str1, n, dekanat);
+		Draw(n, dekanat);
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = dekanat[i].NameStudent;
+		}
+
+		SortStr(str1, n, dekanat);
+		Draw(n, dekanat);
+	};
+	break;
+	case 3:
+	{
+		system("cls");
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << "\t\t\t\t\t1 - Возрастанию\n";
+		cout << "\t\t\t\t\t2 - Убыванию\n";
+		SetConsoleTextAttribute(hStdOut, 15);
+		int com;
+		cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (dekanat[i].AveragePerfomance > dekanat[j].AveragePerfomance)
+					{
+						swap(dekanat[i], dekanat[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (dekanat[i].AveragePerfomance < dekanat[j].AveragePerfomance)
+					{
+						swap(dekanat[i], dekanat[j]);
+					}
+			}
+		};
+		break;
+		default: SortStudent(n, dekanat);
+		}
+	};
+	break;
+
+
+	default: SortStudent(n, dekanat);
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		dekanat[i].N = i + 1;
+	}
+	NewStudentRecordFile(n, dekanat);
+	Draw(n, dekanat);
+	return NULL;
+}
+
+//Сортировка 
+void SortStr(string* S, int N, Dekanat* dekanat)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту по заданным параметрам
+	Входные параметры -  1.Массив структуры данных; 2. Массив строк;
+	Выходной параметр - Отсутствует.
+	*/
+	for (int i = 0; i < N - 1; i++)
+
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str()) > 0) swap(dekanat[i], dekanat[j]);
+		}
+}
+
+//5 - Вывод данных о разработчике
+void information(int n, struct Dekanat* dekanat)
+{
+	/*
+	Данная функция показывает информацию о разработчике программы;
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 8);  // цвет циан
+	gotoxy(45, 1);
+	cout << "Информация о разработчике";
+
+	gotoxy(30, 3);
+	cout << "ФИО разработчика - Карпов Иван Александрович ";
+	gotoxy(30, 4);
+	cout << "Дата рождения - ..  ....... 2000г";
+	gotoxy(30, 5);
+	cout << "Возраст - 18 лет";
+	gotoxy(30, 6);
+	cout << "Место обучения - Филлиал в г.Фрязино МИРЭА";
+	gotoxy(30, 7);
+	cout << "Факультет - Информатика и вычислительная техника";
+	gotoxy(30, 8);
+	cout << "Курс - 1\n";
+
+	SetConsoleTextAttribute(hStdOut, 8);
+	int comanda;
+	gotoxy(30, 10);
+	cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		gotoxy(30, 10);
+		cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, dekanat);
+}

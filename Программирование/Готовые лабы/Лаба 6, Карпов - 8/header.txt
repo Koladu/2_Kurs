@@ -1,0 +1,16 @@
+#pragma once
+#include <iostream>
+
+#define N 8
+#define vk printf("\n")
+
+struct NOTE
+{
+	char* nam;
+	char* znak;
+	int month;
+};
+
+void printing(NOTE note[N]);
+void Sorting(NOTE note[N]);
+void Poisk(NOTE note[N]);

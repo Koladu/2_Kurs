@@ -1,0 +1,906 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<windows.h>
+
+using namespace std;
+
+HDC hdc = GetDC(GetConsoleWindow());
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //получаем дескриптор 
+
+int n = 0; // Количество продуктов
+string FileName = "foodwarehouse.db";  // Путь к файлу и/или имя файла
+
+struct Product
+{
+	int N;
+	string code;
+	string NameProduct;
+	string place;
+	int shelf_life;
+	float quantity;
+};
+
+
+
+void menu(int n, Product *Pr);
+void WriteBeginText();
+void to_menu(int n, Product *Pr);
+void gotoxy(int x, int y);
+void NewProductsRecordFile(int n, Product *Pr);
+int number();
+Product *LoadProduct(int n, Product *Pr);
+Product *DeteteProduct(int n, Product *Pr, int comanda_del);
+Product *AddProduct(int n, Product *Pr);
+void SortStr(string *S, int N, Product *Pr);
+Product *SortProduct(int n, Product *Pr);
+void Draw(int n, Product *Pr);
+void SearchProduct(int n, Product *Pr);
+Product *SortProduct(int n, Product *Pr);
+void menu(int n, Product *Pr);
+
+int main()
+{
+	system("title Продуктовый склад");	 //Заголовок
+	setlocale(LC_ALL, "ru");
+	WriteBeginText();
+	ifstream file;	// Чтение файла
+	file.open(FileName);  // Открытие файла
+	if (file.is_open() == true)	// Если файл открыт можно работать программой
+	{
+		file.close();	// Закрытие файла
+		n = number();
+		Product *Pr = new Product[n];
+		LoadProduct(n, Pr);
+		menu(n, Pr);
+		delete[] Pr;  //удаление динамической памяти
+		_getch();  // Задержка программы
+	}
+	else
+	{
+		cout << "\t ------------------" << "\n\t | Файл не открыт | \n" << "\t ------------------";
+		Sleep(10000);  // Если файл не открывается программа выключится через 10000 мкс(т. е. 10 секунд).
+	}
+	return 0;
+}
+
+void menu(int n, Product *Pr)
+{	 /*
+	 Данная функция управляется номером команды	для использования нужных команд
+	 Входной параметр - Массив структуры данных и команда для удаления элемента;
+	 Выходной параметр - Отсутствует.
+	 */
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 1);	  // синий цвет
+	cout << "------------------------ Меню -----------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 10);  // зелений цвет
+	cout << "\t1 - Вывод баз данных на экран\n";
+	cout << "\t2 - Добавление продуктов\n";
+	cout << "\t3 - Поиск и удаление\n";
+	cout << "\t4 - Сортировка\n";
+	SetConsoleTextAttribute(hStdOut, 4);	// красный цвет
+	cout << "\n\t0 - Выход\n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "-----------------------------------------------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);  // белый цвет
+	cout << "\n Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		menu(n, Pr);
+	}
+
+	switch (comanda)
+	{
+	case 0: exit(0);
+	case 1: Draw(n, Pr); break;
+	case 2: AddProduct(n, Pr); break;
+	case 3:	SearchProduct(n, Pr); break;
+	case 4: SortProduct(n, Pr);	 break;
+	default: menu(n, Pr);
+	}
+}
+
+void WriteBeginText()
+{
+	/*
+	Данная функция создает файл и записывает сток
+	Входной параметр - Отсутствует;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	fout << "1;1234113;мин. вода;5Д8;102008;80;" << endl;
+	fout.close();
+}
+
+void to_menu(int n, Product *Pr)
+{
+	/*
+	Данная функция предназначена для выхода в меню
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	SetConsoleTextAttribute(hStdOut, 15);
+	int comanda;
+	cout << "\n\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		cout << "\n\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, Pr);
+}
+
+void gotoxy(int x, int y)
+{
+	/*
+	Данная функция выравнивает БД в консоли
+	Входной параметр - Задающие координаты для выравнивания БД в консоли;
+	Выходной параметр - Отсутствует.
+	*/
+	COORD p = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+}
+
+int number()
+{
+	/*
+	Данная функция считает количество строк из файла
+	Входной параметр - Отсутствует;
+	Выходной параметр - Количество продуктов.
+	*/
+	int count = 0;
+
+	ifstream file;
+	file.open(FileName);
+
+	while (!file.eof())
+	{
+		if (file.get() == '\n')
+			count++;
+	}
+
+	Product*Pr = new Product[count];
+	return count;
+}
+
+Product *LoadProduct(int n, Product *Pr)
+{
+	/*
+	Данная функция инициализирует массив структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	ifstream fin;
+	fin.open(FileName);
+
+	char N1[3], code1[20], NameProduct1[20], place1[20], shelf_life1[20], quantity1[10];
+
+	//---------Инициализация масивов символов к нулевому символу--------------------
+	for (int i = 0; i < 3; i++)
+		N1[i] = '\0';
+
+	for (int i = 0; i < 10; i++)
+		quantity1[i] = '\0';
+
+	for (int i = 0; i < 20; i++)
+		code1[i] = NameProduct1[i] = place1[i] = shelf_life1[i] = '\0';
+
+	//-------------------------------------------------------------------------------
+
+	for (int i = 0; i < n; i++)
+	{
+		int count = 0;
+		char ch;
+		while ((ch = fin.get()) != ';')
+		{
+			N1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			code1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NameProduct1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			place1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			shelf_life1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			quantity1[count] = ch; count++;
+		}
+		count = 0;
+		Pr[i].N = atoi(N1);
+		Pr[i].shelf_life = atoi(shelf_life1);
+		Pr[i].quantity = atof(quantity1);
+		Pr[i].code = code1;
+		Pr[i].NameProduct = NameProduct1;
+		Pr[i].place = place1;
+	}
+	fin.close();
+	return NULL;
+}
+
+void NewProductsRecordFile(int n, Product *Pr)
+{
+	/*
+	Данная функция записывает в файл изменения
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	for (int i = 0; i < (n - 1); i++)
+	{
+		fout << i + 1 << ";" << Pr[i].code << ";" << Pr[i].NameProduct << ";" << Pr[i].place;
+		fout << ";" << Pr[i].shelf_life << ";" << Pr[i].quantity << ";\n";
+	}
+	fout.close();
+}
+
+Product *DeteteProduct(int n, Product *Pr, int comanda_del)
+{
+	/*
+	Данная функция удаляет comanda_del-го элемента массива
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	//------------------УДАЛЕНИЕ ЭЛЕМЕНТА-----------------------------------------------------------------------
+	//------- Шаг 1. Замена удаляемого элемента на крайний	элемент
+	string temp_Code = Pr[n - 1].code;
+	Pr[n - 1].code = Pr[comanda_del].code;
+	Pr[comanda_del].code = temp_Code;
+
+	string name_Pr = Pr[n - 1].NameProduct;
+	Pr[n - 1].NameProduct = Pr[comanda_del].NameProduct;
+	Pr[comanda_del].NameProduct = name_Pr;
+
+	string temp_Place = Pr[n - 1].place;
+	Pr[n - 1].place = Pr[comanda_del].place;
+	Pr[comanda_del].place = temp_Place;
+
+	int tempi = Pr[n - 1].shelf_life;
+	Pr[n - 1].shelf_life = Pr[comanda_del].shelf_life;
+	Pr[comanda_del].shelf_life = tempi;
+
+	float tempf = Pr[n - 1].quantity;
+	Pr[n - 1].quantity = Pr[comanda_del].quantity;
+	Pr[comanda_del].quantity = tempf;
+
+	//-------- Шаг 2. Новый масив
+	Product *PrNew = new Product[n - 1];
+
+	//------- Шаг 3. Инициализация всех элементов к новому массиву кроме крайного
+	for (int i(0); i < (n - 1); i++)
+	{
+		PrNew[i] = Pr[i];
+	}
+
+	//------ Шаг 4. Удаление старого массива
+	delete[] Pr;
+	Pr = PrNew;
+	//--------------------------------------
+
+	//---------------Запись в файл ---------------------------------
+
+	NewProductsRecordFile(n, Pr);
+
+	//---------------------------------------------------------------
+	system("cls");
+	cout << "\n\n\n\n\t\tДанные удалены успешно.\n";
+	n--;
+	to_menu(n, Pr);
+	return NULL;
+}
+
+Product *AddProduct(int n, Product *Pr)
+{
+	/*
+	Данная функция предназначена для добавления нужного количество элементов массива структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	int nAdd;
+	cout << "Введите количество добавленных продуктов: ";
+	while (!(cin >> nAdd))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		cout << endl << "\t\tОШИБКА!\nВведите заново количество добавленных продуктов: ";
+	}
+
+	Product *PrNew = new Product[n + nAdd];
+
+	for (int i(0); i < n; i++)
+	{
+		PrNew[i] = Pr[i];
+	}
+	system("cls");
+	delete[] Pr;
+	Pr = PrNew;
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		char ImyaPr[40];
+		char MestoPr[40];
+		SetConsoleTextAttribute(hStdOut, 4);
+		cout << endl << "Введите код " << i + 1 << "-го продукта: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> Pr[i].code;
+		SetConsoleTextAttribute(hStdOut, 4);
+		cout << endl << "Введите наименование " << i + 1 << "-го продукта: ";
+		char f[48];
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(f, 48);	//Для задержки
+		cin.getline(ImyaPr, 40);
+		OemToCharA(ImyaPr, ImyaPr); // Перевод из кодировки 866 в 1251
+		Pr[i].NameProduct = (string)ImyaPr;
+		SetConsoleTextAttribute(hStdOut, 4);
+		cout << endl << "Введите место расположения на складе " << i + 1 << "-го продукта: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(MestoPr, 40);
+		OemToCharA(MestoPr, MestoPr);
+		Pr[i].place = (string)MestoPr;
+		SetConsoleTextAttribute(hStdOut, 4);
+		cout << endl << "Введите срок годности " << i + 1 << "-го продукта: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		while (!(cin >> Pr[i].shelf_life))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << endl << "Введите заново срок годности " << i + 1 << "-го продукта: ";
+		}
+		SetConsoleTextAttribute(hStdOut, 4);
+		cout << endl << "Введите количество " << i + 1 << "-го продукта: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		while (!(cin >> Pr[i].quantity))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << endl << "Введите заново количество " << i + 1 << "-го продукта: ";
+		}
+		system("cls");
+	}
+
+	ofstream fout;
+	fout.open(FileName, ios_base::app);
+
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		fout << i + 1 << ";" << PrNew[i].code << ";" << PrNew[i].NameProduct << ";" << PrNew[i].place;
+		fout << ";" << PrNew[i].shelf_life << ";"  << PrNew[i].quantity << ";\n";
+	}
+
+	fout.close();
+
+	n += nAdd;
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\n\n\t\t\t ------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 4);
+	cout << "\n\t\t\t | Данные добавленных продуктов сохранены | \n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\t\t\t ------------------------------------------\n";
+
+	to_menu(n, Pr);
+	return NULL;
+}
+
+void Draw(int n, Product *Pr)
+{
+	/*
+	Данная функция выводит БД в консоли
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 286);
+	gotoxy(1, 0);
+	cout << "№ |";
+	gotoxy(4, 0);
+	cout << "Код        |";
+	gotoxy(16, 0);
+	cout << "Наименование        |";
+	gotoxy(37, 0);
+	cout << "Место расположения    |";
+	gotoxy(60, 0);
+	cout << "Срок годности     |";
+	gotoxy(79, 0);
+	cout << "Количество |";
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n-------------------------------------------------------------------------------------------";
+	for (int i = 0; i < n; i++)
+	{
+		gotoxy(1, i + 2);
+		cout << i + 1;
+		gotoxy(4, i + 2);
+		cout << Pr[i].code;
+		gotoxy(16, i + 2);
+		cout << Pr[i].NameProduct;
+		gotoxy(37, i + 2);
+		cout << Pr[i].place;
+		gotoxy(60, i + 2);
+		cout << Pr[i].shelf_life;
+		gotoxy(79, i + 2);
+		cout << Pr[i].quantity;
+		gotoxy(3, i + 2);
+		cout << "|";
+		gotoxy(15, i + 2);
+		cout << "|";
+		gotoxy(36, i + 2);
+		cout << "|";
+		gotoxy(59, i + 2);
+		cout << "|";
+		gotoxy(78, i + 2);
+		cout << "|";
+	}
+	cout << "\n-------------------------------------------------------------------------------------------\n";
+	int com;
+	cout << "\n Введите номер команды и нажмите ENTER \n(1 - Сортировка; 0 - Выход в меню): ";
+	while (!(cin >> com))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		Draw(n, Pr);
+	}
+	switch (com)
+	{
+		case 0: menu(n,Pr);	break;
+		case 1: SortProduct(n, Pr); break;
+		default: Draw(n, Pr);
+	}
+}
+
+void SearchProduct(int n, Product *Pr)
+{
+	/*
+	Данная функция предназначена для поиска элемента массива(и при желаний для дальнейшего удаления элемента массива)
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "------------------------------ Поиск ------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 10);
+	cout << "\t1 - По порядковому номеру продукта\n";
+	cout << "\t2 - По коду продукта\n";
+	cout << "\t3 - По сроку годности продукта\n";
+	cout << "\t4 - По количеству продукта\n";
+	cout << "-------------------------------------------------------------------------------\n\n";
+	cout << "-------------------------------------------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 4);
+	cout << "\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "-------------------------------------------------------------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SearchProduct(n, Pr);
+	}
+
+	switch (comanda)
+	{
+	case 1:
+	{
+		system("cls");
+		int No, No1;
+		cout << "\n\tВведите № искомого продукта (1 - " << n << "): ";
+		while (!(cin >> No1) || No1>n || No1<1)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "Вы ввели неправильно порядкового номера продукта\n";
+			cout << "\n\tВведите заново № искомого продукта (1 - " << n << "): ";
+		}
+		No = No1 - 1;
+
+		system("cls");
+		cout << "\t№ ";
+		SetConsoleTextAttribute(hStdOut, 10);
+		cout << No1;
+		SetConsoleTextAttribute(hStdOut, 15);
+		cout << "\n\tКод: " << Pr[No].code << "\n\tНаименование: " << Pr[No].NameProduct << "\n\tМесто расположения: " << Pr[No].place;
+		cout << "\n\tСрок годности: " << Pr[No].shelf_life << "\n\tКоличество: " << Pr[No].quantity << endl << endl;
+		cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+		int com;
+		cout << "\n\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com) || com>1 || com<0)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 0: menu(n, Pr); break;
+		case 1: DeteteProduct(n, Pr, No); break;
+		}
+
+
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string code;
+		int  ComDel = 0;
+		cout << "\n\tВведите код искомого продукта: ";
+		cin >> code;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (code == Pr[i].code)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tКод: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << Pr[i].code;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tНаименование: " << Pr[i].NameProduct << "\n\tМесто расположения: " << Pr[i].place;
+				cout << "\n\tСрок годности: " << Pr[i].shelf_life << "\n\tКоличество: " << Pr[i].quantity << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Продукт не найден\n";
+			to_menu(n, Pr);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, Pr); break;
+			case 1: DeteteProduct(n, Pr, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 3:
+	{
+		system("cls");
+		int LifePr;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите срок годности искомого продукта: ";
+		while (!(cin >> LifePr))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите срок годности искомого продукта: ";
+		}
+
+		for (int i(0); i < n; i++)
+		{
+			if (LifePr == Pr[i].shelf_life)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1) << "\n\tКод: " << Pr[i].code << "\n\tНаименование: " << Pr[i].NameProduct;
+				cout << "\n\tМесто расположения: " << Pr[i].place << "\n\tСрок годности: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << Pr[i].shelf_life;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tКоличество: " << Pr[i].quantity << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Продукт не найден\n";
+			to_menu(n, Pr);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, Pr); break;
+			case 1: DeteteProduct(n, Pr, ComDel); break;
+			}
+		}
+	};
+	break;
+	case 4:
+	{
+		system("cls");
+		int Q;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите количество искомого продукта: ";
+		while (!(cin >> Q))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите количество искомого продукта: ";
+		}
+
+		for (int i(0); i < n; i++)
+		{
+			if (Q == Pr[i].quantity)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1) << "\n\tКод: " << Pr[i].code << "\n\tНаименование: " << Pr[i].NameProduct << "\n\tМесто расположения: " << Pr[i].place;
+				cout << "\n\tСрок годности: " << Pr[i].shelf_life << "\n\tКоличество: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << Pr[i].quantity << endl << endl;
+				SetConsoleTextAttribute(hStdOut, 15);
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Продукт не найден\n";
+			to_menu(n, Pr);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, Pr); break;
+			case 1: DeteteProduct(n, Pr, ComDel); break;
+			}
+		}
+	};
+	break;
+	case 0: menu(n, Pr);
+	default: SearchProduct(n, Pr);
+	}
+}
+
+
+void SortStr(string *S, int N, Product *Pr)
+{	
+	/*
+	Данная функция сортирует структуру по алфавиту по заданным параметрам
+	Входной параметр -  1.Массив структуры данных; 2. Массив строк;
+	Выходной параметр - Отсутствует.
+	*/
+	for (int i = 0; i < N - 1; i++)
+
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str())>0) swap(Pr[i], Pr[j]);
+		}
+}
+
+
+Product *SortProduct(int n, Product *Pr)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту/значению по заданным параметрам
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "------------------------ Сортировка -----------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 10);
+	cout << "\t1 - По коду\n";
+	cout << "\t2 - По наименованию\n";
+	cout << "\t3 - По месту расположению\n";
+	cout << "\t4 - По сроку годности\n";
+	cout << "\t5 - По количеству\n";
+	SetConsoleTextAttribute(hStdOut, 4);
+	cout << "\n\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "-----------------------------------------------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SortProduct(n, Pr);
+	}
+
+	switch (comanda)
+	{
+	case 0: menu(n, Pr); break;
+	case 1:
+	{
+		system("cls");
+		string *str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Pr[i].code;
+		}
+
+		SortStr(str1, n, Pr);
+		Draw(n, Pr);
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string *str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Pr[i].NameProduct;
+		}
+
+		SortStr(str1, n, Pr);
+		Draw(n, Pr);
+	};
+	break;
+	case 3:
+	{
+		system("cls");
+		string *str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Pr[i].place;
+		}
+
+		SortStr(str1, n, Pr);
+		Draw(n, Pr);
+	};
+	break;
+	case 4:
+	{
+		system("cls");
+		cout << "\t1 - По возрастанию\n";
+		cout << "\t2 - По убыванию\n";
+		int com;
+		cout << "\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Pr[i].shelf_life > Pr[j].shelf_life)
+					{
+						swap(Pr[i], Pr[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Pr[i].shelf_life < Pr[j].shelf_life)
+					{
+						swap(Pr[i], Pr[j]);
+					}
+			}
+		};
+		break;
+		default: SortProduct(n, Pr);
+		}
+	};
+	break;
+	case 5:
+	{
+		system("cls");
+		cout << "\t1 - По возрастанию\n";
+		cout << "\t2 - По убыванию\n";
+		int com;
+		cout << "\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Pr[i].quantity > Pr[j].quantity)
+					{
+						swap(Pr[i], Pr[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Pr[i].quantity < Pr[j].quantity)
+					{
+						swap(Pr[i], Pr[j]);
+					}
+			}
+		};
+		break;
+		default: SortProduct(n, Pr);
+		}
+	};
+	break;
+
+	default: SortProduct(n, Pr);
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		Pr[i].N = i + 1;
+	}
+	NewProductsRecordFile(n, Pr);
+	Draw(n, Pr);
+	return NULL;
+}

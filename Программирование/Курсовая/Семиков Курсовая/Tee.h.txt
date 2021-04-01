@@ -1,0 +1,38 @@
+#ifndef Tee//Название хидерника
+#define Tee
+
+#include<stdio.h>
+#include<conio.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<windows.h>
+
+using namespace std;
+
+struct Tea{
+	int N;//Порядковый номер записи
+	string TypeTea;//тип чая
+	string PackingForm;//форма упаковки
+	string Manufacturer;//страна производительManufacturer
+	int PriceForOne;//цена за штуку
+	int Quantity;//Колличество штук
+};
+
+void menu(int n, Tea* tee);
+void Draw(int n, Tea* tee);
+void WriteBeginText();
+void to_menu(int n, Tea* tee);
+void gotoxy(int x, int y);
+void RecordNewTeaFile(int n, Tea* tee);
+int number();
+Tea* Initialization(int n, Tea* tee);
+Tea* Detete(int n, Tea* tee, int comanda_del);
+Tea* AddTea(int n, Tea* tee);
+void SortStr(string* S, int N, Tea* tee);
+Tea* SortTea(int n, Tea* tee);
+void SearchTea(int n, Tea* tee);
+void menu(int n, Tea* tee);
+void information(int n, Tea* tee);
+
+#endif

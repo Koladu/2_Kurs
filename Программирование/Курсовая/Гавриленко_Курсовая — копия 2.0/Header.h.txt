@@ -1,0 +1,52 @@
+#ifndef _food_h
+#define _food_h
+
+#include<stdio.h>
+#include<conio.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<windows.h>
+
+using namespace std;
+
+struct BusDepot
+{
+	int N;
+	string NumberAutobus;
+	string NameDriver;
+	string NumberRoute;
+	string Location;
+};
+
+void menu(int n, BusDepot* Pr);
+
+void WriteBeginText();
+
+void to_menu(int n, BusDepot* Pr);
+
+void gotoxy(int x, int y);
+
+void NewRouteRecordFile(int n, BusDepot* Pr);
+
+int number();
+
+BusDepot* LoadRoute(int n, BusDepot* Pr);
+
+BusDepot* DeteteRoute(int n, BusDepot* Pr, int comanda_del);
+
+BusDepot* AddRoute(int n, BusDepot* Pr);
+
+void SortStr(string* S, int N, BusDepot* Pr);
+
+BusDepot* SortRoute(int n, BusDepot* Pr);
+
+void Draw(int n, BusDepot* Pr);
+
+void SearchRoute(int n, BusDepot* Pr);
+
+void menu(int n, BusDepot* Pr);
+
+void info(int n, BusDepot* Pr);
+
+#endif

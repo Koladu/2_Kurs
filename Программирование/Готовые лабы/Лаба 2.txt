@@ -1,0 +1,55 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include<windows.h>
+#include <string.h>	
+using namespace std;
+
+void OprKol(char vector[], int dlina);
+
+void main()
+{
+	setlocale(0, "");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	char vector[] = { "Сегодня на ужин, я ел салат из овощей. А вчера мы купили арбуз.\n" };
+	int dlina = strlen(vector);
+	cout << "Dlina = " << dlina << endl;
+
+	OprKol(vector, dlina);
+
+	system("pause");
+}
+
+
+void OprKol(char vector[], int dlina)
+{
+	cout << "Предложение:\n";
+	for (int i = 0; i < dlina; i++) {
+		cout << vector[i];
+	}
+
+	int k = 0;
+	//==================
+	for (int i = 0; i < dlina; i++) {
+		if (i == 0)
+		{
+			if ((vector[i] == 'А') || (vector[i] == 'а') || (vector[i] == 'Е') || (vector[i] == 'е') || (vector[i] == 'Ё') || (vector[i] == 'ё') || (vector[i] == 'И') ||
+				(vector[i] == 'и') || (vector[i] == 'О') || (vector[i] == 'о') || (vector[i] == 'У') || (vector[i] == 'у') || (vector[i] == 'Э') || (vector[i] == 'э') ||
+				(vector[i] == 'Ю') || (vector[i] == 'ю') || (vector[i] == 'Я') || (vector[i] == 'я'))
+			{
+				k = k + 1;
+			}
+		}
+		else if (vector[i] == ' ')
+		{
+			if ((vector[i + 1] == 'А') || (vector[i + 1] == 'а') || (vector[i + 1] == 'Е') || (vector[i + 1] == 'е') || (vector[i + 1] == 'Ё') || (vector[i + 1] == 'ё') || (vector[i + 1] == 'И') ||
+				(vector[i + 1] == 'и') || (vector[i + 1] == 'О') || (vector[i + 1] == 'о') || (vector[i + 1] == 'У') || (vector[i + 1] == 'у') || (vector[i + 1] == 'Э') || (vector[i + 1] == 'э') ||
+				(vector[i + 1] == 'Ю') || (vector[i + 1] == 'ю') || (vector[i + 1] == 'Я') || (vector[i + 1] == 'я'))
+			{
+				k = k + 1;
+			}
+		}
+	}
+
+	cout << "\n Колличество слов начинающихся с гласной буквы - " << k << endl;
+}

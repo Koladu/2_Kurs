@@ -1,0 +1,1141 @@
+#include "Header.h"
+
+string FileName = "motoshow.db";  // Путь к файлу и/или имя файла
+
+HDC hdc = GetDC(GetConsoleWindow());
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //получаем дескриптор 
+
+//Вывод меню, выбор действия и перенаправление на функции в зависимости от выбора+
+void menu(int n, struct MotoShow* moto)
+{	 /*
+	 Данная функция управляется номером команды	для использования нужных команд
+	 Входной параметр - Массив структуры данных и команда для удаления элемента;
+	 Выходной параметр - Отсутствует.
+	 */
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);	  // Желтый
+	cout << "\t\t\t\t\t\t     Меню\n";
+	SetConsoleTextAttribute(hStdOut, 3);  // Циан
+	cout << "\t\t\t\t\t1. Вывод баз данных на экран\n";
+	cout << "\t\t\t\t\t2. Добавление мотоцикла\n";
+	cout << "\t\t\t\t\t3. Поиск и удаление\n";
+	cout << "\t\t\t\t\t4. Сортировка\n";
+	cout << "\t\t\t\t\t5. Информация\n";
+	SetConsoleTextAttribute(hStdOut, 8);	// Серый
+	cout << "\n\t\t\t\t\t0. Выход\n";
+	SetConsoleTextAttribute(hStdOut, 14); // Желтый
+	cout << "\t\t\t\t\t-----------------------------\n";
+
+
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);  // белый цвет
+	cout << "\n\t\t\t\t   Выберите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		menu(n, moto);
+	}
+
+	switch (comanda)
+	{
+	case 0: exit(0);  //выход
+	case 1: Draw(n, moto); break;   //1 - вывод базы данных на экран(menu)
+	case 2: AddMoto(n, moto); break;  //2 - добавление мотоцикла(menu)
+	case 3: SearchMoto(n, moto); break;  //3 - поиск и удаление(menu)
+	case 4: SortMoto(n, moto);	 break;  //4 - сортировка(menu)
+	//case 5: information(n, moto); break;  //5 - информация
+	default: menu(n, moto);
+	}
+}
+
+//1 - вывод базы данных на экран(menu)+
+void Draw(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция выводит БД в консоли
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 3);
+	gotoxy(1, 0);
+	cout << "№ |";
+	gotoxy(4, 0);
+	cout << "№ двигателя  |";
+	gotoxy(20, 0);
+	cout << "№ рамы  |";
+	gotoxy(30, 0);
+	cout << "Марка     |";
+	gotoxy(42, 0);
+	cout << "Тип мотоцикла |";
+	gotoxy(58,0);
+	cout << "Объем  |" ;
+	gotoxy(68, 0);
+	cout << "Мощность  |";
+	gotoxy(80, 0);
+	cout << "Цена      |";
+
+	cout << "\n-------------------------------------------------------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 15);
+	for (int i = 0; i < n; i++)
+	{
+		gotoxy(1, i + 2);
+		cout << i + 1;
+		gotoxy(4, i + 2);
+		cout << moto[i].NumberEngine;
+		gotoxy(20, i + 2);
+		cout << moto[i].NumberFrame;
+		gotoxy(31, i + 2);
+		cout << moto[i].Marka;
+		gotoxy(41, i + 2);
+		cout << moto[i].Type;
+		gotoxy(57, i + 2);
+		cout << moto[i].Volume;
+		gotoxy(66, i + 2);
+		cout << moto[i].Power;
+		gotoxy(79, i + 2);
+		cout << moto[i].Price;
+
+		gotoxy(3, i + 2);
+		cout << "|";
+		gotoxy(17, i + 2);
+		cout << "|";
+		gotoxy(28, i + 2);
+		cout << "|";
+		gotoxy(40, i + 2);
+		cout << "|";
+		gotoxy(56, i + 2);
+		cout << "|";
+		gotoxy(65, i + 2);
+		cout << "|";
+		gotoxy(78, i + 2);
+		cout << "|";
+		gotoxy(90, i + 2);
+		cout << "|";	
+	}
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\n-------------------------------------------------------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 15);
+	int com;
+	cout << "\n Введите номер команды и нажмите ENTER \n(1 - Сортировка; 0 - Выход в меню): ";
+	while (!(cin >> com))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		Draw(n, moto);
+	}
+	switch (com)
+	{
+	case 0: menu(n, moto);	break;
+	case 1: SortMoto(n, moto); break;
+	default: Draw(n, moto);
+	}
+}
+
+//Данные для Базы Данных+
+void WriteBeginText()
+{
+	/*
+	Данная функция создает файл и записывает строк
+	Входной параметр - Отсутствует;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	fout << "1;UA34659;X027;Урал  ;Classic;750 ;107 л/с;200000;" << endl;
+	fout << "2;FW34528;H457;HONDA ;Sport  ;750 ;123 л/с;150000;" << endl;
+	fout << "3;BCW7345;H454;KTM   ;Sport  ;1400;55 л/с ;170000;" << endl;
+	fout << "4;LD32H53;J48G;BMW   ;Classic;313 ;167 л/с;120000;" << endl;
+	fout << "5;54JF23F;AMG4;Harley;Sport  ;420 ;205 л/с;230000;" << endl;
+	fout << "6;SD34GF4;CT34;SUZUKI;Classic;560 ;111 л/с;135000;" << endl;
+	fout << "7;SF34764;D311;YAMAHA;Sport  ;315 ;79  л/с;430000;" << endl;
+	fout << "8;AMG228F;GG34;Ducati;Classic;1200;100 л/с;100000;" << endl;
+	fout.close();
+}
+
+//выход в главное меню и проверка на ввод(нет ссылок)+
+void to_menu(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция предназначена для выхода в меню
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	SetConsoleTextAttribute(hStdOut, 15);
+	int comanda;
+	cout << "\n\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		cout << "\n\t\t\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, moto);
+}
+
+//выравнивание базы данных(нет ссылок)+
+void gotoxy(int x, int y)
+{
+	/*
+	Данная функция выравнивает БД в консоли
+	Входной параметр - Задающие координаты для выравнивания БД в консоли;
+	Выходной параметр - Отсутствует.
+	*/
+	COORD p = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+}
+
+//Считывание кол-ва строк из файла+
+int number()
+{
+	/*
+	Данная функция считает количество строк из файла
+	Входной параметр - Отсутствует;
+	Выходной параметр - Количество продуктов.
+	*/
+	int count = 0;
+
+	ifstream file;
+	file.open(FileName);
+
+	while (!file.eof())
+	{
+		if (file.get() == '\n')
+			count++;
+	}
+
+	MotoShow* Pr = new MotoShow[count];
+	return count;
+}
+
+//Инициализация массивоф данными+
+MotoShow* Initialization(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция инициализирует массив структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	ifstream fin;
+	fin.open(FileName);
+
+	char N1[3], Engine1[20], Frame1[20], Marka1[20], Type1[20], Volume1[20], Power1[20], Price1[20];
+
+	//---------Инициализация масивов символов к нулевому символу--------------------
+
+	for (int i = 0; i < 3; i++) {
+		N1[i] = '\0';
+	}
+
+	for (int i = 0; i < 20; i++) {
+		Engine1[i] = Frame1[i] = Marka1[i] = Type1[i] =  '\0';
+	}
+	for (int i = 0; i < 20; i++) {
+		Volume1[i] = Power1[i] = Price1[i] = '\0';
+	}
+
+	//------------------------------------------------------------------------------
+
+	for (int i = 0; i < n; i++)
+	{
+		int count = 0;
+		char ch;
+		while ((ch = fin.get()) != ';')
+		{
+			N1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Engine1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Frame1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Marka1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Type1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Volume1[count] = ch; count++;
+		}
+		count = 0; 
+		while ((ch = fin.get()) != ';')
+		{
+			Power1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Price1[count] = ch; count++;
+		}
+		count = 0;
+
+		moto[i].N = atoi(N1);		
+		moto[i].NumberEngine = Engine1;
+		moto[i].NumberFrame = Frame1;
+		moto[i].Marka = Marka1;
+		moto[i].Type = Type1;
+		moto[i].Volume = atoi(Volume1);
+		moto[i].Power = atoi(Power1);
+		moto[i].Price = atoi(Price1);
+	}
+	fin.close();
+	return NULL;
+}
+
+//2 - добавление мотоциклов(menu)+
+MotoShow* AddMoto(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция предназначена для добавления нужного количество элементов массива структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	int nAdd;
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "Введите количество добавляемых мотоциклов: ";
+	while (!(cin >> nAdd))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		cout << endl << "\t\tОШИБКА!\nВведите заново количество добавленных мотоциклов: ";
+	}
+
+	MotoShow* MotoNew = new MotoShow[n + nAdd];
+
+	for (int i(0); i < n; i++)
+	{
+		MotoNew[i] = moto[i];
+	}
+	system("cls");
+	delete[] moto;
+	moto = MotoNew;
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		char engine[40];
+		char frame[40];
+		char marka[40];
+		char type[40];
+		int volume[40];
+		int power[40];
+		int price[40];
+
+		char f[48];
+
+		SetConsoleCP(1251); //Перевод в кодировку
+		SetConsoleOutputCP(1251);
+
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите номер двигателя " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(f, 48);	//Для задержки
+		cin.getline(engine, 40);
+		moto[i].NumberEngine = (string)engine;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите номер рамы " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(frame, 40);
+		moto[i].NumberFrame = (string)frame;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите марку " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(marka, 40);
+		moto[i].Marka = (string)marka;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите Тип " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(type, 40);
+		moto[i].Type = (string)type;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите объем " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> moto[i].Volume;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите Мощность " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> moto[i].Power;
+		//==============================
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << endl << "Введите Цену " << i + 1 << "-го мотоцикла: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin >> moto[i].Price;
+		
+
+		SetConsoleTextAttribute(hStdOut, 3);
+		system("cls");
+	}
+
+	ofstream fout;
+	fout.open(FileName, ios_base::app);
+
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		fout << i + 1 << ";" << MotoNew[i].NumberEngine << ";" << MotoNew[i].NumberFrame << ";" << MotoNew[i].Marka;
+		fout << ";" << MotoNew[i].Type << ";" << MotoNew[i].Volume << ";" << MotoNew[i].Power << ";" << MotoNew[i].Price << ";\n";
+	}
+
+	fout.close();
+
+	n += nAdd;
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\n\n\t\t\t ------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t | Данные добавленных мотоциклов сохранены | \n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\t\t\t ------------------------------------------\n";
+
+	to_menu(n, moto);
+	return NULL;
+}
+
+//3 - поиск и удаление мотоцикла(menu)+
+void SearchMoto(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция предназначена для поиска элемента массива(и при желаний для дальнейшего удаления элемента массива)
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	SetConsoleCP(1251); //Перевод в кодировку
+	SetConsoleOutputCP(1251);
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t\t     Поиск\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t\t\t\t\t1 - По номеру мотоцикла\n";
+	cout << "\t\t\t\t\t2 - По номеру двигателя\n";
+	cout << "\t\t\t\t\t3 - По номеру рамы\n";
+	cout << "\t\t\t\t\t4 - По марке\n";
+	cout << "\t\t\t\t\t5 - По типу\n";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SearchMoto(n, moto);
+	}
+
+	switch (comanda)
+	{
+	case 1:
+	{
+		system("cls");
+		int No, No1;
+		cout << "\n\tВведите № искомого мотоцикла (1 - " << n << "): ";
+		while (!(cin >> No1) || No1 > n || No1 < 1)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "Вы ввели неправильно порядковый номера мотоцикла\n";
+			cout << "\n\tВведите заново № искомого мотоцикла (1 - " << n << "): ";
+		}
+		No = No1 - 1;
+
+		system("cls");
+		cout << "\t№ ";
+		SetConsoleTextAttribute(hStdOut, 10);
+		cout << No1;
+		SetConsoleTextAttribute(hStdOut, 15);
+		cout << "\n\tНомер двигателя: " << moto[No].NumberEngine << "\n\tНомер рамы: " << moto[No].NumberFrame << "\n\tМарка: " << moto[No].Marka << "\n\tТип: " << moto[No].Type;
+		cout << "\n\tОбъем: " << moto[No].Volume << "\n\tМощность: " << moto[No].Power << "\n\tЦена: " << moto[No].Price << endl << endl;
+		cout << "\n\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+		int com;
+		cout << "\n\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com) || com > 1 || com < 0)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 0: menu(n, moto); break;
+		case 1: Detete(n, moto, No); break;
+		}
+
+
+	};
+	break;
+
+	case 2:
+	{
+		system("cls");
+		string code;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер двигателя: ";
+		cin >> code;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (code == moto[i].NumberEngine)
+			{
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tНомер двигателя: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << moto[i].NumberEngine;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tНомер рамы: " << moto[i].NumberFrame << "\n\tМарка: " << moto[i].Marka << "\n\tТип: " << moto[i].Type;
+				cout  << "\n\tОбъем: " << moto[i].Volume << "\n\tМощность: " << moto[i].Power << "\n\tЦена: " << moto[i].Price << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Номер двигателя не найден\n";
+			to_menu(n, moto);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, moto);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, moto, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, moto); break;
+			case 1: Detete(n, moto, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 3:
+	{
+		system("cls");
+		string LifePr;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер рамы: ";
+		while (!(cin >> LifePr))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите номер рамыь: ";
+		}
+
+		for (int i(0); i < n; i++)
+		{
+			if (LifePr == moto[i].NumberFrame)
+			{
+				cout  << "\n\tМарка: " << moto[i].Marka << "\n\tТип: " << moto[i].Type;
+				cout << "\n\tОбъем: " << moto[i].Volume << "\n\tМощность: " << moto[i].Power << "\n\tЦена: " << moto[i].Price << "\n\tНомер рамы: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << moto[i].NumberFrame;
+				SetConsoleTextAttribute(hStdOut, 15);
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\tНомер рамы не найден\n";
+			to_menu(n, moto);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, moto);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, moto, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, moto); break;
+			case 1: Detete(n, moto, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 4:
+	{
+		system("cls");
+		string Numb;
+		int  ComDel = 0;
+		cout << "\n\tВведите марку: ";
+		cin >> Numb;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (Numb == moto[i].Marka)
+			{
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tМарка: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << moto[i].Marka;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tНомер двигателя: " << moto[i].NumberEngine << "\n\tНомер рамы: " << moto[i].NumberFrame << "\n\tТип: " << moto[i].Type;
+				cout << "\n\tОбъем: " << moto[i].Volume << "\n\tМощность: " << moto[i].Power << "\n\tЦена: " << moto[i].Price << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Марка мотоцикла не найдена\n";
+			to_menu(n, moto);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, moto);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, moto, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, moto); break;
+			case 1: Detete(n, moto, ComDel); break;
+			}
+		}
+	}
+	break;
+
+	case 5:
+	{
+		system("cls");
+		string Number;
+		int  ComDel = 0;
+		cout << "\n\tВведите тип мотоцикла: ";
+		cin >> Number;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (Number == moto[i].Marka)
+			{
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tТип: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << moto[i].Type;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tНомер двигателя: " << moto[i].NumberEngine << "\n\tНомер рамы: " << moto[i].NumberFrame << "\n\tМарка: " << moto[i].Marka;
+				cout << "\n\tОбъем: " << moto[i].Volume << "\n\tМощность: " << moto[i].Power << "\n\tЦена: " << moto[i].Price << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Тип мотоцикла не найдена\n";
+			to_menu(n, moto);
+		}
+		if (checking > 1)
+		{
+			cout << "\n\t\tКоманды\n\t1 - Удаление элемента\n\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			if (com == 0) {
+				menu(n, moto);
+			}
+			if (com == 1) {
+				cout << "\n Введите номер удаляемого элемента: ";
+				int c; cin >> c;
+				ComDel = c - 1;
+				Detete(n, moto, ComDel);
+			}
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, moto); break;
+			case 1: Detete(n, moto, ComDel); break;
+			}
+		}
+	}
+	break;
+
+	case 0: menu(n, moto);
+	default: SearchMoto(n, moto);
+	}
+}
+
+//Добавление мотоцикла +
+void NewMotoRecordFile(int n, MotoShow* moto)
+{
+	/*
+	Данная функция записывает в файл изменения
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	for (int i = 0; i < (n - 1); i++)
+	{
+		fout << i + 1 << ";" << moto[i].NumberEngine << ";" << moto[i].NumberFrame << ";" << moto[i].Marka;
+		fout << ";" << moto[i].Type << ";" << moto[i].Volume << ";" << moto[i].Power << ";" << moto[i].Price << ";\n";
+	}
+	fout.close();
+}
+
+//Удаление мотоцикла+
+MotoShow* Detete(int n, MotoShow* moto, int comanda_del)
+{
+	/*
+	Данная функция удаляет comanda_del-го элемента массива
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	//------------------УДАЛЕНИЕ ЭЛЕМЕНТА-----------------------------------------------------------------------
+	//------- Шаг 1. Замена удаляемого элемента на крайний	элемент
+	string temp_Engine = moto[n - 1].NumberEngine;
+	moto[n - 1].NumberEngine = moto[comanda_del].NumberEngine;
+	moto[comanda_del].NumberEngine = temp_Engine;
+
+	string name_Frame = moto[n - 1].NumberFrame;
+	moto[n - 1].NumberFrame = moto[comanda_del].NumberFrame;
+	moto[comanda_del].NumberFrame = name_Frame;
+
+	string temp_Marka = moto[n - 1].Marka;
+	moto[n - 1].Marka = moto[comanda_del].Marka;
+	moto[comanda_del].Marka = temp_Marka;
+
+	string temp_Type = moto[n - 1].Type;
+	moto[n - 1].Type = moto[comanda_del].Type;
+	moto[comanda_del].Type = temp_Type;
+
+	int temp_Volume = moto[n - 1].Volume;
+	moto[n - 1].Volume = moto[comanda_del].Volume;
+	moto[comanda_del].Volume = temp_Volume;
+
+	int temp_Power = moto[n - 1].Power;
+	moto[n - 1].Power = moto[comanda_del].Power;
+	moto[comanda_del].Power = temp_Power;
+
+	int temp_Price = moto[n - 1].Price;
+	moto[n - 1].Price = moto[comanda_del].Price;
+	moto[comanda_del].Price = temp_Price;
+
+	//-------- Шаг 2. Новый масив
+	MotoShow* PrNew = new MotoShow[n - 1];
+
+	//------- Шаг 3. Инициализация всех элементов к новому массиву кроме крайного
+	for (int i(0); i < (n - 1); i++)
+	{
+		PrNew[i] = moto[i];
+	}
+
+	//------ Шаг 4. Удаление старого массива
+	delete[] moto;
+	moto = PrNew;
+	//-------------------------------------
+
+	//---------------Запись в файл ---------------------------------
+
+	NewMotoRecordFile(n, moto);
+
+	//---------------------------------------------------------------
+	system("cls");
+	cout << "\n\n\n\n\t\tДанные удалены успешно.\n";
+	n--;
+	to_menu(n, moto);
+	return NULL;
+}
+
+//4 - сортировка мотоциклов(menu)
+MotoShow* SortMoto(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту/значению по заданным параметрам
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t\t     Сортировка\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t\t\t\t\t1 - По Номеру двигателя \n";
+	cout << "\t\t\t\t\t2 - По Номеру рамы\n";
+	cout << "\t\t\t\t\t3 - По Объему\n";
+	cout << "\t\t\t\t\t4 - По Мощности\n";
+	cout << "\t\t\t\t\t5 - По Цене\n";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 14);
+	cout << "\t\t\t\t\t-----------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SortMoto(n, moto);
+	}
+
+	switch (comanda)
+	{
+	case 0: menu(n, moto); break;
+	case 1:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = moto[i].NumberEngine;
+		}
+
+		SortStr(str1, n, moto);
+		Draw(n, moto);
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = moto[i].NumberFrame;
+		}
+
+		SortStr(str1, n, moto);
+		Draw(n, moto);
+	};
+	break;
+	case 3:
+	{
+		system("cls");
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << "\t\t\t\t\t1 - Возрастанию\n";
+		cout << "\t\t\t\t\t2 - Убыванию\n";
+		SetConsoleTextAttribute(hStdOut, 15);
+		int com;
+		cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Volume > moto[j].Volume)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Volume < moto[j].Volume)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		default: SortMoto(n, moto);
+		}
+	};
+	break;
+	case 4:
+	{
+		system("cls");
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << "\t\t\t\t\t1 - Возрастанию\n";
+		cout << "\t\t\t\t\t2 - Убыванию\n";
+		SetConsoleTextAttribute(hStdOut, 15);
+		int com;
+		cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Power > moto[j].Power)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Power < moto[j].Power)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		default: SortMoto(n, moto);
+		}
+	};
+	break;
+	case 5:
+	{
+		system("cls");
+		SetConsoleTextAttribute(hStdOut, 3);
+		cout << "\t\t\t\t\t1 - Возрастанию\n";
+		cout << "\t\t\t\t\t2 - Убыванию\n";
+		SetConsoleTextAttribute(hStdOut, 15);
+		int com;
+		cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n\t\t\t\t   Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Price > moto[j].Price)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (moto[i].Price < moto[j].Price)
+					{
+						swap(moto[i], moto[j]);
+					}
+			}
+		};
+		break;
+		default: SortMoto(n, moto);
+		}
+	};
+	break;
+
+	default: SortMoto(n, moto);
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		moto[i].N = i + 1;
+	}
+	NewMotoRecordFile(n, moto);
+	Draw(n, moto);
+	return NULL;
+}
+
+//Сортировка 
+void SortStr(string* S, int N, MotoShow* moto)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту по заданным параметрам
+	Входные параметры -  1.Массив структуры данных; 2. Массив строк;
+	Выходной параметр - Отсутствует.
+	*/
+	
+	
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str()) > 0){
+				swap(moto[i], moto[j]);
+			}
+		}
+	}
+}
+
+//5 - Вывод данных о разработчике
+void information(int n, struct MotoShow* moto)
+{
+	/*
+	Данная функция показывает информацию о разработчике программы;
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 8);  
+	gotoxy(45, 1);
+	cout << "Информация о разработчике";
+
+	gotoxy(30, 3);
+	cout << "Написал - Оганезов Павел ";
+	gotoxy(30, 4);
+	cout << "Возраст - 19 лет";
+	gotoxy(30, 5);
+	cout << "Курс - 2";
+
+	SetConsoleTextAttribute(hStdOut, 8);
+	int comanda;
+	gotoxy(30, 10);
+	cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); 
+		while (cin.get() != '\n');
+		gotoxy(30, 10);
+		cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, moto);
+}

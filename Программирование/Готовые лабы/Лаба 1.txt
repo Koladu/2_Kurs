@@ -1,0 +1,82 @@
+#include <iostream>
+
+void Enter(int i, int j, int mas[12][6][7], const char *day[]);
+
+int main()
+{
+	setlocale(0, "");
+
+	HANDLE  out;
+	out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	SetConsoleTextAttribute(out, 0x70);//установка яркого зеленого  цвета
+	system("cls");//очистка экрана - весь экран залит зеленым цветом
+
+	printf_s("%42s\n", "КАЛЕНДАРЬ ПРОГРАМИСТА");
+	printf_s("%30s%x\n\n", "0x", 2011);
+
+	int nachalo[] = { 6,2,2,5,7,3,5,1,4,6,2,4 };
+	int kollvo[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+	int pob[42] = { 0 };
+	int kalendar[12][6][7];
+	int t, k = 0;
+	const char* day[] = { "001","010","011","100","101","110","111" };
+	
+
+	for (int m = 0; m < 12; m++)
+	{
+		t = nachalo[m];
+		//Заполнение побочного массива
+		for (int i = 0; i < kollvo[m]; i++){
+			pob[t + i - 1] = i + 1;
+		}
+		//Заполнение календаря
+		for (int i = 0; i < 6; i++)
+		{
+			for (int j = 0; j < 7; j++){
+				kalendar[m][i][j] = pob[k];
+				k++;
+			}
+		}
+		//Очистка побочного массива
+		for (int i = 0; i < 42; i++){
+			pob[i] = 0;
+		} 
+		k = 0;
+	}
+
+	Enter(0, 3, kalendar, day);
+	Enter(3, 6, kalendar, day);
+	Enter(6, 9, kalendar,day);
+	Enter(9, 12, kalendar,day);
+
+	system("pause");
+}
+
+void Enter(int i, int j, int mas[12][6][7],const char *day[])
+{
+	for (int m = i; m < j; m++) {
+		printf("%15s%x  ","Ox", m + 1);
+	}
+	std::cout << std::endl;
+
+	for (int y = 0; y < 7; y++)
+	{
+		printf_s("%s  ", day[y]);
+
+		for (int m = i; m < j; m++)
+		{
+			for (int x = 0; x < 6; x++)
+			{
+				if (mas[m][x][y] == 0){
+					printf("   ");
+				}
+				else{
+					printf("%3x", mas[m][x][y]);
+				}
+			}
+		}
+		std::cout << '\n';
+	}
+	std::cout << std::endl;
+}

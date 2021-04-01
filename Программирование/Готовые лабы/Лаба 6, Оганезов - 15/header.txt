@@ -1,0 +1,16 @@
+#pragma once
+#include <iostream>
+using namespace std;
+#define N 5
+#define vk printf("\n")
+
+struct ORDER
+{
+	long long int Platelchik;
+	long long int Poluchatel;
+	double Summa;
+};
+
+void printing(ORDER note[N]);
+void sort(ORDER note[N]);
+void Bol_50k(ORDER note[N]);

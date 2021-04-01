@@ -1,0 +1,75 @@
+#include "Header.h"
+
+void printing(NOTE note[N]) {
+
+	printf_s("\t\tТелефонная книга\n");
+	printf_s("%17s%16s%11s", "Имя и Фамилия", "Номер", "Год\n"); vk;
+	//Вывод таблицы
+	for (int i = 0; i < N; i++) {
+		printf_s("%18s\t", note[i].nam);
+		std::cout << note[i].number;
+		printf_s("%8d", note[i].year);
+		vk;
+	}
+	vk;
+}
+
+void chtenie(NOTE note[N]) {
+
+
+	int * pob = new int[N];
+	int * poz = new int[N];
+
+	for (int i = 0; i < N; i++) {
+		pob[i] = note[i].year;
+		poz[i] = i;
+	}
+	int k = 0; int g = 0;
+
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j < N - 1; j++) {
+			if (pob[j] > pob[j + 1]) {
+
+				k = pob[j];
+				pob[j] = pob[j + 1];
+				pob[j + 1] = k;
+
+				g = poz[j];
+				poz[j] = poz[j + 1];
+				poz[j + 1] = g;
+
+			}
+		}
+	}
+
+	//==============================
+
+	std::ofstream fout;          // поток для записи
+	fout.open("D:\\notex.txt"); // окрываем файл для записи
+
+	if (fout.is_open())
+	{
+		fout << "\t\tТелефонная книга" << std::endl;
+		fout << "   Имя и фамилия            Номер \tГод\n" << std::endl;
+		for (int i = 0; i < N; i++) {
+			fout << " " << note[poz[i]].nam << "\t\t" << note[poz[i]].number << "\t" << note[poz[i]].year << std::endl;
+		}
+	}
+	fout.close();
+
+	//==============================
+
+	std::string line;
+
+	std::ifstream in("D:\\notex.txt"); // окрываем файл для чтения
+	if (in.is_open())
+	{
+		while (getline(in, line))
+		{
+			std::cout << line << std::endl;
+		}
+	}
+	in.close();     // закрываем файл
+
+	delete[] pob; delete[] poz;
+}

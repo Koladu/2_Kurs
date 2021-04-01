@@ -1,0 +1,50 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<windows.h>
+
+using namespace std;
+
+struct MotoShow
+{
+	int N;//порядковый номер
+	string NumberEngine;//номер двигателя
+	string NumberFrame;//номер рамы
+	string Marka;//марка мотоцикла
+	string Type;//тип мотоцикла
+	int Volume;//объем
+	int Power;//мощность
+	int Price;//цена
+};
+
+void menu(int n, MotoShow* moto);
+
+void WriteBeginText();
+
+void to_menu(int n, MotoShow* moto);
+
+void gotoxy(int x, int y);
+
+void NewMotoRecordFile(int n, MotoShow* moto);
+
+int number();
+
+MotoShow* Initialization(int n, MotoShow* moto);
+
+MotoShow* Detete(int n, MotoShow* moto, int comanda_del);
+
+MotoShow* AddMoto(int n, MotoShow* moto);
+
+void SortStr(string* S, int N, MotoShow* moto);
+
+MotoShow* SortMoto(int n, MotoShow* moto);
+
+void Draw(int n, MotoShow* moto);
+
+void SearchMoto(int n, MotoShow* moto);
+
+void menu(int n, MotoShow* moto);
+
+void information(int n, MotoShow* moto);

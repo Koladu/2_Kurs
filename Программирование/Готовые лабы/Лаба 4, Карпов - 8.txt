@@ -1,0 +1,72 @@
+#include<iostream> 
+#include <time.h> 
+#define N 10 
+using namespace std;
+
+template <typename T>
+void impl(T a[N], float& g)
+{
+	int j = 1;
+	while (j > 0)
+	{
+		j = 0;
+		for (int i = 0; i < N - 1; i++)
+		{
+			if (a[i] > a[i + 1])
+			{
+				j++;
+				g = a[i];
+				a[i] = a[i + 1];
+				a[i + 1] = g;
+			}
+		}
+	}
+
+	for (int i = 0; i < N; i++) {
+		cout << a[i] << " ";
+	}
+}
+
+int main()
+{
+	setlocale(0, "");
+	srand(time(NULL));
+
+	int a;
+	float g;
+
+	//Заполнение массива 
+	int mas[N];
+	for (int i = 0; i < N; i++) {
+		mas[i] = rand() % 20;
+	}
+
+	//Вывод массива
+	cout << "Первичный массив: ";
+	for (int i = 0; i < N; i++) {
+		cout << mas[i] << " ";
+	}
+
+	cout << "\nОтсортированный массив: ";
+	impl(mas, g);
+
+	cout << "\n";
+
+	//Заполнение массива 
+	float mas1[N];
+	for (int i = 0; i < N; i++) {
+		mas1[i] = (float)(rand()) / ((RAND_MAX) / (101 - 1));
+	}
+
+	//Вывод массива
+	cout << "\nПервичный массив: ";
+	for (int i = 0; i < N; i++) {
+		cout << mas1[i] << " ";
+	}
+
+	cout << "\nОтсортированный массив:  ";
+	impl(mas1, g);
+	cout << "\n";
+
+	system("pause");
+}

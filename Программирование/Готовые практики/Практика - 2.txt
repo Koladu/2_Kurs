@@ -1,0 +1,113 @@
+#include <iostream>
+#include <clocale>
+#include <stdio.h>
+#include <Windows.h>
+#include <conio.h> //для работы с клавиатурой
+
+using namespace std;
+
+void main()
+{
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	/*
+	¤ - 253
+	*/
+	int xp = 1;
+	int sec = 0;
+	int msec = 0;
+	const int X = 12, Y = 10;//размер карты
+	COORD coord = { 1,1 };//кординаты игрока
+	COORD coord1 = { 1,1 };//кординаты игрока
+	COORD coordXP = { 0,12 };// Координаты вывода счетчика жизней
+	COORD cer = { 0, 17 };
+
+	//игровая карта
+	int map[Y][X] = {
+		1,1,1,1,1,1,1,1,1,1,1,1, 
+		1,0,1,0,0,0,1,0,0,0,0,1, 
+		1,0,1,0,1,1,1,0,1,1,1,1, 
+		1,0,1,0,1,0,0,0,0,0,0,1, 
+		1,0,0,0,1,1,0,1,1,1,0,1, 
+		1,1,0,1,1,0,0,1,0,0,0,1, 
+		1,0,0,0,0,0,1,1,0,1,0,1, 
+		1,0,1,1,1,1,1,1,1,1,0,1, 
+		1,0,0,0,0,0,0,0,0,1,0,1, 
+		1,1,1,1,1,1,1,1,1,1,3,1 };
+
+	//прорисовка карты
+	for (int i = 0; i < Y; i++)
+	{
+		for (int j = 0; j < X; j++)
+		{
+			switch (map[i][j])
+			{
+			case 1:cout << (char)178; break;//построение стен
+			case 3:cout << (char)176; break;//финиш
+			case 2:cout << (char)3; break;//персонаж
+			case 0:cout << ' '; break;//добавление пустого пространства
+			}
+		}
+		cout << '\n';
+	}
+
+	while(true)//игровой процесс
+	{
+		msec++;
+		if (msec % 100 == 0)
+		{
+			sec++;
+			SetConsoleCursorPosition(console, cer);
+
+			cout << "Время: " << sec << " сек ";
+		}
+		
+		if (_kbhit())//проверка нажатия клавиши
+		{
+			int code = _getch(); //получаем код нажатой клавиши
+			SetConsoleCursorPosition(console, coord);
+			cout << ' ' << flush;//стираем предыдущее местоположение
+			switch (code)
+			{
+			case 'w': if (map[coord.Y - 1][coord.X] != 1)coord.Y--; else xp--; break;
+			case 's': if (map[coord.Y + 1][coord.X] == 3)xp++;//определение финиша
+				if (map[coord.Y + 1][coord.X] != 1)coord.Y++; else xp--; break;
+			case 'a': if (map[coord.Y][coord.X - 1] != 1)coord.X--; else xp--; break;
+			case 'd': if (map[coord.Y][coord.X + 1] != 1)coord.X++; else xp--; break;
+			}
+		}
+		setlocale(LC_ALL, "Russian");
+
+		SetConsoleTextAttribute(console, FOREGROUND_BLUE);
+		SetConsoleCursorPosition(console, coordXP);
+		cout << "Количество жизней: " << xp << endl;
+		SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+		cout << "Включите английскую раскладку на клавиатуре и убедитесь, что не нажата клавиша 'Caps'! " << endl << flush;
+		cout << "Перемещайтесь с помощью клавиш 'w','a','s','d'. " << endl << flush;
+		cout << "Приятной игры! " << flush;
+		SetConsoleTextAttribute(console, FOREGROUND_RED);//Цвет смайла - зеленый
+		SetConsoleCursorPosition(console, coord);
+		cout << (char)1 << flush;//Выводим смайл
+		SetConsoleCursorPosition(console, coord1);
+		cout << (char)2 << flush;//Выводим смайл
+
+		if (xp == 0)//условие проигрыша
+		{
+			system("cls");//очищаем поле
+			COORD center = { 35,15 };//координаты центра
+			SetConsoleCursorPosition(console, center);//определяем позицию написания
+			cout << " В Ы   П Р О И Г Р А Л И !!!";
+			_getch();//закрытие по нажатию
+			break;
+		}
+		if (xp == 2)//условие выигрыша
+		{
+			system("cls");//очищаем поле
+			COORD center = { 35,15 };//координаты центра
+			SetConsoleTextAttribute(console, FOREGROUND_BLUE);//определяем цвет сообщения
+			SetConsoleCursorPosition(console, center);//определяем позицию написания
+			cout << " В Ы   В Ы И Г Р А Л И !!!";
+			_getch();//закрытие по нажатию
+			break;
+		}
+	}
+}

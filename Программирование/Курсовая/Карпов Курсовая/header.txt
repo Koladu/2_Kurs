@@ -1,0 +1,52 @@
+#ifndef _food_h
+#define _food_h
+
+#include<stdio.h>
+#include<conio.h>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<windows.h>
+
+using namespace std;
+
+struct Dekanat
+{
+	int N;
+	int NumberRecord;
+	string NameStudent;
+	string NumberStudent;
+	string AveragePerfomance;
+};
+
+void menu(int n, Dekanat* Pr);
+
+void WriteBeginText();
+
+void to_menu(int n, Dekanat* Pr);
+
+void gotoxy(int x, int y);
+
+void NewStudentRecordFile(int n, Dekanat* Pr);
+
+int number();
+
+Dekanat* Initialization(int n, Dekanat* Pr);
+
+Dekanat* Detete(int n, Dekanat* Pr, int comanda_del);
+
+Dekanat* AddStudent(int n, Dekanat* Pr);
+
+void SortStr(string* S, int N, Dekanat* Pr);
+
+Dekanat* SortStudent(int n, Dekanat* Pr);
+
+void Draw(int n, Dekanat* Pr);
+
+void SearchStudent(int n, Dekanat* Pr);
+
+void menu(int n, Dekanat* Pr);
+
+void information(int n, Dekanat* Pr);
+
+#endif

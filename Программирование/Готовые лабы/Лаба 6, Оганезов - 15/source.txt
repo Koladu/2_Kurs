@@ -1,0 +1,64 @@
+#include "Header.h"
+
+void printing(ORDER order[N]) {
+
+	printf_s("\t\t\t\t\tПорядок\n");
+	printf_s("%22s%28s%24s", "Расчетный счет плательшика", "Расчетный счет получателя", "Перечисленная сумма\n"); vk;
+	//Вывод таблицы
+	for (int i = 0; i < N; i++) {
+		printf_s("%18d\t", order[i].Platelchik);
+		printf_s("%20d\t", order[i].Poluchatel);
+		printf_s("%22f P", order[i].Summa);
+		vk;
+	}
+	vk;
+}
+
+void sort(ORDER order[N]) {
+	cout << "Cортировка.." << endl;
+	int* pob = new int[N];
+	int* poz = new int[N];
+
+	for (int i = 0; i < N; i++) {
+		pob[i] = order[i].Summa;
+		poz[i] = i;
+	}
+	int k = 0; int g = 0;
+
+	for (int i = 0; i < N - 1; i++) {
+		for (int j = 0; j < N - 1; j++) {
+			if (pob[j] > pob[j + 1]) {
+
+				k = pob[j];
+				pob[j] = pob[j + 1];
+				pob[j + 1] = k;
+
+				g = poz[j];
+				poz[j] = poz[j + 1];
+				poz[j + 1] = g;
+
+			}
+		}
+	}
+
+	for (int i = 0; i < N; i++) {
+		printf_s("%18d\t", order[i].Platelchik);
+		printf_s("%20d\t", order[i].Poluchatel);
+		printf_s("%22f P", order[i].Summa);
+		vk;
+	}
+	delete[] pob; delete[] poz;
+}
+
+void Bol_50k(ORDER order[N]) {
+	cout << "\nДанные счетов чья сумма больше 50000к.." << endl;
+	for (int i = 0; i < N; i++) {
+		if (order[i].Summa > 50000) {
+			printf_s("%18d\t", order[i].Platelchik);
+			printf_s("%20d\t", order[i].Poluchatel);
+			printf_s("%22d P", order[i].Summa);
+			vk;
+		}
+	}
+	vk; vk;
+}

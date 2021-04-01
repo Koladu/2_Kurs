@@ -1,0 +1,66 @@
+#include "Header.h"
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	time_t t1;
+	srand((int)time(&t1));
+
+	unsigned int i, j;
+
+	
+	char nam[N][15] = {
+			"Павел", "Николай", "Владимир", "Антон", "Владимир",
+			"Юрий", "Сергей", "Андрей", "Ярослав", "Виктор"
+	};
+
+	
+	student vmc[N];
+	for (i = 0; i < N; i++)
+	{
+		//имя
+		vmc[i].nam = nam[i];
+		//курс обучения от 1 до 5
+		vmc[i].kurs = (int)(rand() % 5 + 1);
+		//стипендия от 2000 до 5000
+		vmc[i].step = (double)(rand() % 3000 + 2000);
+		//оценки от 2 до 5
+		for (j = 0; j < N; j++) 	vmc[i].ocenka[j] = rand() % 4 + 2;
+		//посещение: 0 - пропуск, 1 - присутствие
+		for (j = 0; j < N; j++) 	vmc[i].pos[j] = (int)rand() % 2;
+		//средняя оценка
+		vmc[i].sr_oc = 0;
+		for (j = 0; j < N; j++) 	vmc[i].sr_oc = vmc[i].sr_oc + vmc[i].ocenka[j];
+		vmc[i].sr_oc = vmc[i].sr_oc / N;
+	}
+	//3. показать весь массив структур
+	printf_s("\tИсходные данные\n");
+	printf_s("%10s%5s%10s%21s%21s%10s", "имена", "курс", "стип", "оценки", "посещение", "сред.оц.");
+	vk;
+	for (i = 0; i < NN; i++)putchar('-');
+	vk;
+	for (i = 0; i < N; i++)
+	{
+		printf_s("%10s%5d%10.1f ", vmc[i].nam, vmc[i].kurs, vmc[i].step);
+		for (j = 0; j < N; j++) printf_s("%2d", vmc[i].ocenka[j]);
+		putchar(' ');
+		for (j = 0; j < N; j++) printf_s("%2d", vmc[i].pos[j]);
+		printf_s("%10.1f", vmc[i].sr_oc);
+		vk;
+	}vk; vk;
+	//Вызов функций
+	F_min_sr(vmc);
+	F_men_3_5(vmc);
+	F_pos_5(vmc);
+	F_pol_5(vmc);
+	F_3_and_4(vmc);
+	F_prog_posl(vmc);
+	F_men_5(vmc);
+	F_bol_vseh(vmc);
+	F_na_3_kurs(vmc);
+	F_sort_sr(vmc);
+	F_imena(vmc);
+	F_vozr_kurs(vmc);
+
+	system("pause");
+}

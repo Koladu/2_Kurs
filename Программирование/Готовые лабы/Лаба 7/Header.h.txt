@@ -1,0 +1,16 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <Windows.h>
+
+#define N 8
+
+struct NOTE
+{
+	char* nam;
+	long long int number;
+	int year;
+};
+
+void chtenie(NOTE note[N]);

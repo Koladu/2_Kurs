@@ -1,0 +1,42 @@
+#include "Header.h"
+
+int main()
+{
+	setlocale(0, "");
+
+	HANDLE  out;
+	out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	SetConsoleTextAttribute(out, 0x70);//установка яркого зеленого  цвета
+	system("cls");//очистка экрана - весь экран залит зеленым цветом
+
+	char nam[N][20] = {
+		"Павел Заречный", "Николай Гоголь", "Василий Вернин", "Антон Забэ",
+		"Женя Зудин","Юрий Гагарин", "Сергей Лазарев", "Андрей Захаров"
+	};
+
+	int year[] = { 1998,1954,1965,1987,1952,1986,1999,1971 };
+	long long int number[N] = 
+	{
+		84995366307,
+		89563064467,
+		89403850375,
+		89767342268,
+		89034512576,
+		89512408675,
+		89537232206,
+		89234057932
+	};
+
+	NOTE note[N];
+
+	for (int i = 0; i < N; i++) {
+		note[i].year = year[i];
+		note[i].nam = nam[i];
+		note[i].number = number[i];
+	}
+
+	chtenie(note);
+
+	system("pause");
+}

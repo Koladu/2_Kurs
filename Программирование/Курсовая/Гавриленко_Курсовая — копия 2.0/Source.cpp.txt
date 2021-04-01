@@ -1,0 +1,795 @@
+#include "Header.h"
+
+string FileName = "bus_bin.db";  // Путь к файлу и/или имя файла
+
+HDC hdc = GetDC(GetConsoleWindow());
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //получаем дескриптор 
+
+//Вывод меню, выбор действия и перенаправление на функции в зависимости от выбора+
+void menu(int n, BusDepot* Bus)
+{	 /*
+	 Данная функция управляется номером команды	для использования нужных команд
+	 Входной параметр - Массив структуры данных и команда для удаления элемента;
+	 Выходной параметр - Отсутствует.
+	 */
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 14);	  // Фиолетовый цвет
+	cout << "------------------------ Меню ----------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 10);  // Светло фиолетовый
+	cout << "\t1. Вывод баз данных на экран\n";
+	cout << "\t2. Добавление маршрутов\n";
+	cout << "\t3. Поиск и удаление\n";
+	cout << "\t4. Сортировка\n";
+	cout << "\t5. Информация о разработчике\n";
+	SetConsoleTextAttribute(hStdOut, 8);	// светло красный цвет
+	cout << "\n\t0. Выход\n";
+	SetConsoleTextAttribute(hStdOut, 14); // синий цвет
+	cout << "----------------------------------------------------------\n";
+
+
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);  // белый цвет
+	cout << "\n Выберите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		menu(n, Bus);
+	}
+
+	switch (comanda)
+	{
+	case 0: exit(0);  //выход
+	case 1: Draw(n, Bus); break;   //1 - вывод базы данных на экран(menu)+
+	case 2: AddRoute(n, Bus); break;  //2 - добавление продукта(menu)+
+	case 3:	SearchRoute(n, Bus); break;  //3 - поиск и удаление продукта(menu)+ //Править сортировку по номеру и фамилии
+	case 4: SortRoute(n, Bus);	 break;  //4 - сортировка продуктов(menu)
+	case 5: info(n, Bus); break;
+	default: menu(n, Bus);
+	}
+}
+
+//1 - вывод базы данных на экран(menu)+
+void Draw(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция выводит БД в консоли
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 286);
+	gotoxy(1, 0);
+	cout << "№ |";
+	gotoxy(4, 0);
+	cout << "Номер автобуса          |";
+	gotoxy(20, 0);
+	cout << "Фио водителя        |";
+	gotoxy(39, 0);
+	cout << "Номер маршрута    |";
+	gotoxy(57, 0);
+	cout << "Местонахождение     |";
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n-------------------------------------------------------------------------------------------";
+	for (int i = 0; i < n; i++)
+	{
+		gotoxy(1, i + 2);
+		cout << i + 1;
+		gotoxy(4, i + 2);
+		cout << Bus[i].NumberAutobus;
+		gotoxy(20, i + 2);
+		cout << Bus[i].NameDriver;
+		gotoxy(39, i + 2);
+		cout << Bus[i].NumberRoute;
+		gotoxy(57, i + 2);
+		cout << Bus[i].Location;
+		gotoxy(3, i + 2);
+		cout << "|";
+		gotoxy(19, i + 2);
+		cout << "|";
+		gotoxy(38, i + 2);
+		cout << "|";
+		gotoxy(56, i + 2);
+		cout << "|";
+		gotoxy(78, i + 2);
+	}
+	cout << "\n-------------------------------------------------------------------------------------------\n";
+	int com;
+	cout << "\n Введите номер команды и нажмите ENTER \n(1 - Сортировка; 0 - Выход в меню): ";
+	while (!(cin >> com))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		Draw(n, Bus);
+	}
+	switch (com)
+	{
+	case 0: menu(n, Bus);	break;
+	case 1: SortRoute(n, Bus); break;
+	default: Draw(n, Bus);
+	}
+}
+
+//2 - добавление маршрута(menu)+
+BusDepot* AddRoute(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция предназначена для добавления нужного количество элементов массива структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	int nAdd;
+	cout << "Введите количество добавляемых маршрутов: ";
+	while (!(cin >> nAdd))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		cout << endl << "\t\tОШИБКА!\nВведите заново количество добавленных маршрутов: ";
+	}
+
+	BusDepot* PrNew = new BusDepot[n + nAdd];
+
+	for (int i(0); i < n; i++)
+	{
+		PrNew[i] = Bus[i];
+	}
+	system("cls");
+	delete[] Bus;
+	Bus = PrNew;
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		char ImyaVod[40];
+		char MestoPr[40];
+		char Locat[40];
+		char f[48];
+		char NumbAut[40];
+		
+		SetConsoleCP(1251); //Перевод в кодировку
+		SetConsoleOutputCP(1251);
+
+		SetConsoleTextAttribute(hStdOut, 3);
+		//=============================
+		cout << endl << "Введите номер " << i + 1 << "-го автобуса: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		
+		cin >> Bus[i].NumberAutobus;
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите Фамилию и Имя водителя " << i + 1 << "-го автобуса: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(f, 48);	//Для задержки
+		cin.getline(ImyaVod, 40);
+		Bus[i].NameDriver = (string)ImyaVod; //+++
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите номер маршрута " << i + 1 << "-го автобуса: ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(MestoPr, 40);
+		Bus[i].NumberRoute = (string)MestoPr;//+++
+		SetConsoleTextAttribute(hStdOut, 3);
+		//==============================
+		cout << endl << "Введите местоположение " << i + 1 << "-го автобуса (Автопарк/Маршрут): ";
+		SetConsoleTextAttribute(hStdOut, 15);
+		cin.getline(Locat, 40);
+		Bus[i].Location = (string)Locat;
+
+		SetConsoleTextAttribute(hStdOut, 3);
+		system("cls");
+	}
+
+	ofstream fout;
+	fout.open(FileName, ios_base::app);
+
+
+	for (int i = n; i < (n + nAdd); i++)
+	{
+		fout << i + 1 << ";" << PrNew[i].NumberAutobus << ";" << PrNew[i].NameDriver << ";" << PrNew[i].NumberRoute;
+		fout << ";" << PrNew[i].Location << ";\n";
+	}
+
+	fout.close();
+
+	n += nAdd;
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\n\n\t\t\t ------------------------------------------";
+	SetConsoleTextAttribute(hStdOut, 8);
+	cout << "\n\t\t\t | Данные добавленных продуктов сохранены | \n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "\t\t\t ------------------------------------------\n";
+
+	to_menu(n, Bus);
+	return NULL;
+}
+
+//3 - поиск и удаление маршрута(menu)+
+void SearchRoute(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция предназначена для поиска элемента массива(и при желаний для дальнейшего удаления элемента массива)
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	SetConsoleCP(1251); //Перевод в кодировку
+	SetConsoleOutputCP(1251);
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "------------------------------ Поиск ------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t1 - По порядковому номеру\n";
+	cout << "\t2 - По номеру автобуса\n";
+	cout << "\t3 - По номеру маршрута \n";
+	cout << "-------------------------------------------------------------------------------\n\n";
+	cout << "-------------------------------------------------------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 4);
+	cout << "\t\t\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "-------------------------------------------------------------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SearchRoute(n, Bus);
+	}
+
+	switch (comanda)
+	{
+	case 1:
+	{
+		system("cls");
+		int No, No1;
+		cout << "\n\tВведите № искомого маршрута (1 - " << n << "): ";
+		while (!(cin >> No1) || No1 > n || No1 < 1)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "Вы ввели неправильно порядковый номера маршрута\n";
+			cout << "\n\tВведите заново № искомого маршрута (1 - " << n << "): ";
+		}
+		No = No1 - 1;
+
+		system("cls");
+		cout << "\t№ ";
+		SetConsoleTextAttribute(hStdOut, 10);
+		cout << No1;
+		SetConsoleTextAttribute(hStdOut, 15);
+		cout << "\n\tНомер: " << Bus[No].NumberAutobus << "\n\tФамилия и Имя водителя: " << Bus[No].NameDriver << "\n\tНомер маршрута: " << Bus[No].NumberRoute;
+		cout << "\n\tМесто расположения: " << Bus[No].Location << endl << endl;
+		cout << "\n\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+		int com;
+		cout << "\n\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com) || com > 1 || com < 0)
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 0: menu(n, Bus); break;
+		case 1: DeteteRoute(n, Bus, No); break;
+		}
+
+
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string code;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер автобуса: ";
+		cin >> code;
+		int checking = 0;
+		for (int i(0); i < n; i++)
+		{
+			if (code == Bus[i].NumberAutobus)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1);
+				cout << "\n\tНомер: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << Bus[i].NumberAutobus;
+				SetConsoleTextAttribute(hStdOut, 15);
+				cout << "\n\tФамилия и Имя водителя: " << Bus[i].NameDriver << "\n\tНомер маршрута: " << Bus[i].NumberRoute;
+				cout << "\n\tМесто расположения: " << Bus[i].Location << endl << endl;
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Номер не найден\n";
+			to_menu(n, Bus);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, Bus); break;
+			case 1: DeteteRoute(n, Bus, ComDel); break;
+			}
+		}
+	};
+	break;
+
+	case 3:
+	{
+		system("cls");
+		string LifePr;
+		int checking = 0;
+		int  ComDel = 0;
+		cout << "\n\tВведите номер маршрута: ";
+		while (!(cin >> LifePr))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			system("cls");
+			cout << "\n\tВведите номер маршрута: ";
+		}
+
+		for (int i(0); i < n; i++)
+		{
+			if (LifePr == Bus[i].NumberRoute)
+			{
+				system("cls");
+				cout << "\t№ " << (i + 1) << "\n\tНомер автобуса: " << Bus[i].NumberAutobus << "\n\tФамилия и Имя: " << Bus[i].NameDriver;
+				cout << "\n\tНомер маршрута: " << Bus[i].NumberRoute << "\n\tМесто расположения: ";
+				SetConsoleTextAttribute(hStdOut, 10);
+				cout << Bus[i].Location;
+				SetConsoleTextAttribute(hStdOut, 15);
+				ComDel = i;
+				checking++;
+			}
+		}
+
+		if (checking == 0)
+		{
+			system("cls");
+			cout << "\n\t Маршрут не найден\n";
+			to_menu(n, Bus);
+		}
+		else
+		{
+			cout << "\t\t\t\tКоманды\n\t\t1 - Удаление данного элемента\n\t\t0 - Выход в меню";
+			int com;
+			cout << "\n\n Введите номер команды и нажмите ENTER: ";
+			while (!(cin >> com) || com > 1 || com < 0)
+			{
+				cin.clear();
+				while (cin.get() != '\n');
+				cout << "\n Введите номер команды и нажмите ENTER: ";
+			}
+
+			switch (com)
+			{
+			case 0: menu(n, Bus); break;
+			case 1: DeteteRoute(n, Bus, ComDel); break;
+			}
+		}
+	};
+	break;
+	case 0: menu(n, Bus);
+	default: SearchRoute(n, Bus);
+	}
+}
+
+//4 - сортировка продуктов(menu)+
+BusDepot* SortRoute(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту/значению по заданным параметрам
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "------------------------ Сортировка -----------------------------------\n";
+	SetConsoleTextAttribute(hStdOut, 3);
+	cout << "\t1 - По Номеру автобуса\n";
+	cout << "\t2 - По Фамилии Водителя\n";
+	cout << "\t3 - По Номеру маршрута\n";
+	cout << "\t4 - По Месту расположения\n";
+	SetConsoleTextAttribute(hStdOut, 4);
+	cout << "\n\t0 - Выход в меню\n";
+	SetConsoleTextAttribute(hStdOut, 1);
+	cout << "-----------------------------------------------------------------\n";
+	int comanda;
+	SetConsoleTextAttribute(hStdOut, 15);
+	cout << "\n Введите номер команды и нажмите ENTER: ";
+	while (!(cin >> comanda))
+	{
+		cin.clear();
+		while (cin.get() != '\n');
+		SortRoute(n, Bus);
+	}
+
+	switch (comanda)
+	{
+	case 0: menu(n, Bus); break;
+	case 1:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Bus[i].NumberAutobus;
+		}
+
+		SortStr(str1, n, Bus);
+		Draw(n, Bus);
+	};
+	break;
+	case 2:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Bus[i].NameDriver;
+		}
+
+		SortStr(str1, n, Bus);
+		Draw(n, Bus);
+	};
+	break;
+	case 3:
+	{
+		system("cls");
+		string* str1 = new string[n];
+		for (int i = 0; i < n; i++)
+		{
+			str1[i] = Bus[i].NumberRoute;
+		}
+
+		SortStr(str1, n, Bus);
+		Draw(n, Bus);
+	};
+	break;
+	case 4:
+	{
+		system("cls");
+		cout << "\t1 - Автопарк\n";
+		cout << "\t2 - Маршрут\n";
+		int com;
+		cout << "\n Введите номер команды и нажмите ENTER: ";
+		while (!(cin >> com))
+		{
+			cin.clear();
+			while (cin.get() != '\n');
+			cout << "\n Введите номер команды и нажмите ENTER: ";
+		}
+
+		switch (com)
+		{
+		case 1:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Bus[i].Location > Bus[j].Location)
+					{
+						swap(Bus[i], Bus[j]);
+					}
+			}
+		};
+		break;
+		case 2:
+		{
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = i + 1; j < n; j++)
+					if (Bus[i].Location < Bus[j].Location)
+					{
+						swap(Bus[i], Bus[j]);
+					}
+			}
+		};
+		break;
+		default: SortRoute(n, Bus);
+		}
+	};
+	break;
+
+
+	default: SortRoute(n, Bus);
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		Bus[i].N = i + 1;
+	}
+	NewRouteRecordFile(n, Bus);
+	Draw(n, Bus);
+	return NULL;
+}
+
+//5 - Вывод данных о разработчике
+void info(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция показывает информацию о разработчике программы;
+	Входной параметр -  Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+
+	system("cls");
+	SetConsoleTextAttribute(hStdOut, 8);  // цвет циан
+	gotoxy(45, 1);
+	cout << "Информация о разработчике";
+
+	gotoxy(30, 3);
+	cout << "ФИО разработчика - Гавриленко Игорь Сергеевич ";
+	gotoxy(30, 4);
+	cout << "Дата рождения - 22 ноября 2000г";
+	gotoxy(30, 5);
+	cout << "Возраст - 18 лет";
+	gotoxy(30, 6);
+	cout << "Место обучения - Филлиал в г.Фрязино МИРЭА";
+	gotoxy(30, 7);
+	cout << "Факультет - Информатика и вычислительная техника";
+	gotoxy(30, 8);
+	cout << "Курс - 1\n";
+
+	SetConsoleTextAttribute(hStdOut, 8);
+	int comanda;
+	gotoxy(30, 10);
+	cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		gotoxy(30, 10);
+		cout << "Для выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, Bus);
+}
+
+//Данные для БД+
+void WriteBeginText()
+{
+	/*
+	Данная функция создает файл и записывает строк
+	Входной параметр - Отсутствует;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	fout << "1;му361;Комисаров Денис    ;39 ;Автопарк;" << endl;
+	fout << "2;чн343;Кручинин Павел     ;707;Автопарк;" << endl;
+	fout << "3;гк004;Гончаров Александр ;3  ;Маршрут ;" << endl;
+	fout << "4;пз010;Бородько Андрей    ;21 ;Маршрут ;" << endl;
+	fout << "5;ке121;Еремин Владимир    ;39 ;Автопарк;" << endl;
+	fout << "6;ас232;Менделеев Женя     ;366;Автопарк;" << endl;
+	fout << "7;ии101;Пристов Николай    ;29 ;Маршрут ;" << endl;
+	fout << "8;оо000;Галыгин Вадим      ;21 ;Маршрут ;" << endl;
+	fout.close();
+}
+
+//выход в главное меню и проверка на ввод(нет ссылок)+
+void to_menu(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция предназначена для выхода в меню
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	SetConsoleTextAttribute(hStdOut, 15);
+	int comanda;
+	cout << "\n\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+
+	while (!(cin >> comanda) || comanda != 0)
+	{
+		cin.clear(); //Очишает ошибочно введенной команды
+		while (cin.get() != '\n');
+		cout << "\n\tДля выхода в меню введите \"0\" и нажмите ENTER: ";
+	}
+	menu(n, Bus);
+}
+
+//выравнивание базы данных(нет ссылок)+
+void gotoxy(int x, int y)
+{
+	/*
+	Данная функция выравнивает БД в консоли
+	Входной параметр - Задающие координаты для выравнивания БД в консоли;
+	Выходной параметр - Отсутствует.
+	*/
+	COORD p = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
+}
+
+//Считывание кол-ва строк из файла+
+int number()
+{
+	/*
+	Данная функция считает количество строк из файла
+	Входной параметр - Отсутствует;
+	Выходной параметр - Количество продуктов.
+	*/
+	int count = 0;
+
+	ifstream file;
+	file.open(FileName);
+
+	while (!file.eof())
+	{
+		if (file.get() == '\n')
+			count++;
+	}
+
+	BusDepot* Pr = new BusDepot[count];
+	return count;
+}
+
+//Инициализация массивоф данными+
+BusDepot* LoadRoute(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция инициализирует массив структуры данных
+	Входной параметр - Массив структуры данных;
+	Выходной параметр - Отсутствует.
+	*/
+	ifstream fin;
+	fin.open(FileName);
+
+	char N1[3], NumberAutobus1[20], NameDriver1[20], NumberRoute1[20], Location1[20];
+
+	//---------Инициализация масивов символов к нулевому символу--------------------
+	for (int i = 0; i < 3; i++)
+		N1[i] = '\0';
+
+
+	for (int i = 0; i < 20; i++)
+		NumberAutobus1[i] = NameDriver1[i] = NumberRoute1[i] = Location1[i] = '\0';
+
+	//-------------------------------------------------------------------------------
+
+	for (int i = 0; i < n; i++)
+	{
+		int count = 0;
+		char ch;
+		while ((ch = fin.get()) != ';')
+		{
+			N1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NumberAutobus1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NameDriver1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			NumberRoute1[count] = ch; count++;
+		}
+		count = 0;
+		while ((ch = fin.get()) != ';')
+		{
+			Location1[count] = ch; count++;
+		}
+		count = 0;
+
+		Bus[i].N = atoi(N1);
+		Bus[i].Location = Location1;
+		Bus[i].NumberAutobus = NumberAutobus1;
+		Bus[i].NameDriver = NameDriver1;
+		Bus[i].NumberRoute = NumberRoute1;
+	}
+	fin.close();
+	return NULL;
+}
+
+//Удаление продукта+
+BusDepot* DeteteRoute(int n, BusDepot* Bus, int comanda_del)
+{
+	/*
+	Данная функция удаляет comanda_del-го элемента массива
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	//------------------УДАЛЕНИЕ ЭЛЕМЕНТА-----------------------------------------------------------------------
+	//------- Шаг 1. Замена удаляемого элемента на крайний	элемент
+	string temp_Code = Bus[n - 1].NumberAutobus;
+	Bus[n - 1].NumberAutobus = Bus[comanda_del].NumberAutobus;
+	Bus[comanda_del].NumberAutobus = temp_Code;
+
+	string name_Pr = Bus[n - 1].NameDriver;
+	Bus[n - 1].NameDriver = Bus[comanda_del].NameDriver;
+	Bus[comanda_del].NameDriver = name_Pr;
+
+	string temp_Place = Bus[n - 1].NumberRoute;
+	Bus[n - 1].NumberRoute = Bus[comanda_del].NumberRoute;
+	Bus[comanda_del].NumberRoute = temp_Place;
+
+	string tempi = Bus[n - 1].Location;
+	Bus[n - 1].Location = Bus[comanda_del].Location;
+	Bus[comanda_del].Location = tempi;
+
+
+	//-------- Шаг 2. Новый масив
+	BusDepot* PrNew = new BusDepot[n - 1];
+
+	//------- Шаг 3. Инициализация всех элементов к новому массиву кроме крайного
+	for (int i(0); i < (n - 1); i++)
+	{
+		PrNew[i] = Bus[i];
+	}
+
+	//------ Шаг 4. Удаление старого массива
+	delete[] Bus;
+	Bus = PrNew;
+	//--------------------------------------
+
+	//---------------Запись в файл ---------------------------------
+
+	NewRouteRecordFile(n, Bus);
+
+	//---------------------------------------------------------------
+	system("cls");
+	cout << "\n\n\n\n\t\tДанные удалены успешно.\n";
+	n--;
+	to_menu(n, Bus);
+	return NULL;
+}
+
+//Добавление продукта+
+void NewRouteRecordFile(int n, BusDepot* Bus)
+{
+	/*
+	Данная функция записывает в файл изменения
+	Входной параметр - Массив структуры данных и команда для удаления элемента;
+	Выходной параметр - Отсутствует.
+	*/
+	ofstream fout;
+	fout.open(FileName);
+	for (int i = 0; i < (n - 1); i++)
+	{
+		fout << i + 1 << ";" << Bus[i].NumberAutobus << ";" << Bus[i].NameDriver << ";" << Bus[i].NumberRoute;
+		fout << ";" << Bus[i].Location << ";" << ";\n";
+	}
+	fout.close();
+}
+
+//Сортировка Маршрутов+
+void SortStr(string* S, int N, BusDepot* Bus)
+{
+	/*
+	Данная функция сортирует структуру по алфавиту по заданным параметрам
+	Входные параметры -  1.Массив структуры данных; 2. Массив строк;
+	Выходной параметр - Отсутствует.
+	*/
+	for (int i = 0; i < N - 1; i++)
+
+		for (int j = i + 1; j < N; j++)
+		{
+			if (strcmp(S[i].c_str(), S[j].c_str()) > 0) swap(Bus[i], Bus[j]);
+		}
+}
+

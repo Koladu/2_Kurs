@@ -1,0 +1,22 @@
+#include "Header.h"
+
+int main()
+{
+	setlocale(0, "");
+
+	char nam[N][20] = {"Акбарс","Локомотив","Реал     ","Динамо","Ювентус","Бавария","Челси","Ливерпуль"};
+	char league[N][20] = {"Бундеслига","Испанская","МЛС    "," Эредивизия","Бундеслига"," Английская"," Эредивизия","МЛС    "};
+	int kollvo[] = {21,20,21,22,19,18,21,20};
+
+	FOOTBALL fut[N];
+
+	for (int i = 0; i < N; i++) {
+		fut[i].nam = nam[i];
+		fut[i].league = league[i];
+		fut[i].kollvo = kollvo[i];
+	}
+
+	sort_i_zapis(fut);
+
+	system("pause");
+}

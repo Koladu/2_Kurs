@@ -1,0 +1,168 @@
+#include <iostream>
+#include <ctype.h>
+#include <string.h>
+using namespace std;
+
+void menu(char massiv1[][100], int* x);
+void predl(char massiv[][100], int* y);
+void slova(char massiv1[][100], char massiv[][100], int x, int y);
+void simvoli(char massiv1[][100], char massiv[][100], int x, int y);
+void glas(char massiv1[][100], char massiv[][100], int x, int y);
+
+int main()
+{
+	int x = 0, y = 0;
+	setlocale(0, "");
+
+	char massiv[][100] = {
+		{"Я очень люблю мороженное."},
+		{"Вы мне очень нравитесь."},
+		{"Сколько стоит футболка?"},
+		{"Можно вас попросить помочь?"},
+		{"Ты идешь в школу и точка!"},
+		{"Как же быстро летит время."}
+	};
+
+	char massiv1[][100] = {
+		{"Отказ от действия"},
+		{"Количество слов"},
+		{"Количество видимых символов"},
+		{"Количество гласных букв"},
+	};
+	menu(massiv1, &x);
+	predl(massiv, &y);
+
+	void((*arr[3]))(char massiv1[][100], char massiv[][100], int x, int y);
+	arr[0] = slova;
+	arr[1] = simvoli;
+	arr[2] = glas;
+
+	if (x == 1) {
+		arr[0](massiv1, massiv, x, y);
+	}
+	else if (x == 2) {
+		arr[1](massiv1, massiv, x, y);
+	}
+	else if (x == 3) {
+		arr[2](massiv1, massiv, x, y);
+	}
+	system("pause");
+}
+
+void menu(char massiv1[][100], int* x) {
+	int a;
+	std::cout << "Меню действия. Определить:\n\n";
+
+	//1================================== //вывод действий
+	for (int i = 1; i < 4; i++) {
+		std::cout << i << ".";
+		for (int j = 0; j < strlen(massiv1[i]); j++) {
+			std::cout << massiv1[i][j];
+		}
+		std::cout << "\n";
+	}
+	std::cout << "0.";
+	for (int j = 0; j < strlen(massiv1[0]); j++) {
+		std::cout << massiv1[0][j];
+	}
+	std::cout << "\n";
+
+	std::cout << "Выберите вариант -> "; cin >> a; std::cout << "\n";  //выбор варианта
+
+//=================================== //Проверка 'x' на правильность ввода
+	if ((a < 0) || (a > 3)) {
+		std::cout << "Ошибка ввода, такого варианта нет. Повторите попытку...";
+		cin >> a;
+	}
+	else if (a == 0) {
+		exit(0);
+	}
+
+	(*x) = a;
+}
+
+void predl(char massiv[][100], int* y) {
+	int a;
+	//2================================== //вывод действий
+	for (int i = 0; i < 6; i++) {
+		cout << i + 1 << " ";
+		for (int j = 0; j < strlen(massiv[i]); j++) {
+			std::cout << massiv[i][j];
+		}
+		std::cout << "\n";
+	}
+	std::cout << "Выберите вариант -> "; cin >> a; std::cout << "\n";   //выбор варианта
+
+	//=================================== //Проверка 'y' на правильность ввода
+	if ((a < 1) || (a > 6)) {
+		std::cout << "Ошибка ввода, такого варианта нет. Повторите попытку...";
+		cin >> a;
+	}
+	(*y) = a;
+}
+
+void slova(char massiv1[][100], char massiv[][100], int x, int y) {
+	int k = 0;
+	std::cout << "Вариант: " << x << " ";
+	for (int j = 0; j < strlen(massiv1[x]); j++) {      //
+		std::cout << massiv1[x][j];
+	}
+
+	std::cout << "\nПредложение: " << y << " ";
+
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		std::cout << massiv[y - 1][i];
+	}
+
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		if (isspace((unsigned char)massiv[y - 1][i])) {
+			k++;
+		}
+	}
+
+	cout << "\nКолличество слов в предложении = " << k + 1 << endl;
+}
+
+void simvoli(char massiv1[][100], char massiv[][100], int x, int y) {
+	//Количество видимых символов
+	int k = 0;
+	std::cout << "Вариант: " << x << " ";
+	for (int j = 0; j < strlen(massiv1[x]); j++) {
+		std::cout << massiv1[x][j];
+	}
+	std::cout << "\nПредложение: " << y << " ";
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		std::cout << massiv[y - 1][i];
+	}
+
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		if (isgraph((unsigned char)massiv[y - 1][i])) {
+			k++;
+		}
+	} cout << "\nКоличество видимых символов = " << k << endl;
+}
+
+void glas(char massiv1[][100], char massiv[][100], int x, int y) {
+
+	int k = 0;
+	std::cout << "Вариант: " << x << " ";
+	for (int j = 0; j < strlen(massiv1[x]); j++) {      //
+		std::cout << massiv1[x][j];
+	}
+	std::cout << "\nПредложение: " << y << " ";
+
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		std::cout << massiv[y - 1][i];
+	}
+
+	for (int i = 0; i < strlen(massiv[y - 1]); i++) {
+		if ((massiv[y - 1][i] == 'А') || (massiv[y - 1][i] == 'а') || (massiv[y - 1][i] == 'Е') || (massiv[y - 1][i] == 'е') || (massiv[y - 1][i] == 'Ё') || (massiv[y - 1][i] == 'ё') || (massiv[y - 1][i] == 'И') || (massiv[y - 1][i] == 'и') ||
+			(massiv[y - 1][i] == 'О') || (massiv[y - 1][i] == 'о') || (massiv[y - 1][i] == 'У') || (massiv[y - 1][i] == 'у') || (massiv[y - 1][i] == 'Ы') || (massiv[y - 1][i] == 'ы') || (massiv[y - 1][i] == 'Э') || (massiv[y - 1][i] == 'э') ||
+			(massiv[y - 1][i] == 'Ю') || (massiv[y - 1][i] == 'ю') || (massiv[y - 1][i] == 'Я') || (massiv[y - 1][i] == 'я'))
+		{
+			k = k + 1;
+		}
+	}
+
+	cout << "\nКоличество гласных букв = " << k << endl;
+}

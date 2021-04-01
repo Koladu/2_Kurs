@@ -1,0 +1,31 @@
+#include "Motor.h"
+
+int n = 0; // Количество мотоциклов
+string FailName = "motoshow.db";  // Путь к файлу и/или имя файла
+
+int main()
+{
+	system("title Мотосалон");	 //Заголовок
+	setlocale(LC_ALL, "ru");
+
+	WriteBeginText();
+	ifstream file;	// Чтение файла
+	file.open(FailName);  // Открытие файла
+
+	if (file.is_open() == true)	// Если файл открыт можно работать программой
+	{
+		file.close();	// Закрытие файла
+		n = number();
+		MotoShow* moto = new MotoShow[n];
+		Initialization(n, moto);
+		menu(n, moto);
+		delete[] moto;  //удаление динамической памяти
+		_getch();  // Задержка программы
+	}
+	else
+	{
+		cout << "\t ------------------" << "\n\t | Файл не открыт | \n" << "\t ------------------";
+		Sleep(10000);  // Если файл не открывается программа выключится через 10000 мкс(т. е. 10 секунд).
+	}
+	return 0;
+}

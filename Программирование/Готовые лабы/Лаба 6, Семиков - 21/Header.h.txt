@@ -1,0 +1,16 @@
+#pragma once
+#include <iostream>
+
+#define N 8
+#define vk printf("\n")
+
+struct FOOTBALL
+{
+	char* nam;
+	char* league;
+	int kollvo;
+};
+
+void printing(FOOTBALL fut[N]);
+void sorting(FOOTBALL fut[N]);
+

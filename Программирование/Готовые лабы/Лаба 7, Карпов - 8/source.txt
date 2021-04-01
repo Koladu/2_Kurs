@@ -1,0 +1,42 @@
+#include "Header.h"
+
+void chtenie(ZNAK znak[N]) {
+
+	std::ofstream fout;          // поток дл€ записи
+	fout.open("D:\\notex.txt"); // окрываем файл дл€ записи
+
+	if (fout.is_open())
+	{
+		int mes, k = 0;
+		std::cout << "¬ведите мес€ц рождени€: ";
+		std::cin >> mes;
+		
+
+		for (int i = 0; i < N; i++) {
+			if (znak[i].month == mes) {
+				k++;
+				fout << "ƒанные о люд€х родившихс€ в " << mes << " мес€ц: " << znak[i].nam << " - " << znak[i].zodiac << std::endl;
+			}
+			
+		}
+		if (k == 0) {
+			fout << "„еловека родившегос€ " << mes << " мес€ца нету" << std::endl;
+		}
+	}
+	fout.close();
+
+	std::string line;
+
+	std::ifstream in("D:\\notex.txt"); // окрываем файл дл€ чтени€
+	if (in.is_open())
+	{
+		while (getline(in, line))
+		{
+			std::cout << line << std::endl;
+		}
+	}
+	in.close();     // закрываем файл
+}
+
+
+
